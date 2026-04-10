@@ -1,0 +1,1243 @@
+/*
+Theme Name: Mariage Julie & Julien
+Theme URI:
+Author: Julie & Julien
+Description: Thème de mariage personnalisé — Vert sauge & Ivoire
+Version: 1.0
+License: GNU General Public License v2 or later
+Text Domain: mariage-jj
+*/
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --sage: #9CAF88;
+    --sage-dark: #7A9068;
+    --sage-light: #B8C5A8;
+    --ivory: #FFFFF0;
+    --champagne: #F5E6CC;
+    --text-dark: #2C3E2D;
+    --text-light: #6B6B5E;
+    --white: #FFFFFF;
+    --border: #D4C5A9;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    color: var(--text-dark);
+    background-color: var(--ivory);
+    line-height: 1.8;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+a {
+    color: var(--sage-dark);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--text-dark);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+.site-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 240, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+/* Decaler sous la barre admin WordPress */
+.admin-bar .site-nav {
+    top: 32px;
+}
+
+@media screen and (max-width: 782px) {
+    .admin-bar .site-nav {
+        top: 46px;
+    }
+}
+
+.site-nav.scrolled {
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.06);
+}
+
+.nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    gap: 0;
+}
+
+.nav-logo {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.6rem;
+    color: var(--sage-dark) !important;
+    margin-right: auto;
+    white-space: nowrap;
+}
+
+.nav-logo:hover {
+    color: var(--text-dark) !important;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.nav-links a {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 0.6rem 1rem;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0.3rem;
+    left: 1rem;
+    right: 1rem;
+    height: 1px;
+    background: var(--sage);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    transform: scaleX(1);
+}
+
+.nav-links a:hover {
+    color: var(--sage-dark);
+}
+
+/* Mobile nav toggle */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-left: auto;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--text-dark);
+    margin: 5px 0;
+    transition: 0.3s;
+}
+
+/* ============================================
+   SECTIONS COMMUNES
+   ============================================ */
+.section {
+    padding: 7rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.section--alt {
+    background-color: var(--champagne);
+}
+
+.section-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.section-header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 3.5rem;
+    padding: 2rem 0;
+}
+
+.section-title {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--text-dark);
+    margin-bottom: 0.8rem;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 1rem;
+    margin-bottom: 0;
+    font-style: italic;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+}
+
+/* Canvas fleurs animees */
+.flower-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.section-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.section-header {
+    position: relative;
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--ivory);
+    padding: 5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-box {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 240, 0.6);
+    border: 1.5px solid var(--sage-light);
+    border-radius: 1.5rem;
+    padding: 3rem;
+    max-width: 1100px;
+    width: 100%;
+    backdrop-filter: blur(4px);
+}
+
+.hero-arabesque {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.hero-arabesque--tl { top: -8px; left: -8px; }
+.hero-arabesque--tr { top: -8px; right: -8px; }
+.hero-arabesque--bl { bottom: -8px; left: -8px; }
+.hero-arabesque--br { bottom: -8px; right: -8px; }
+
+.hero-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3.5rem;
+}
+
+.hero-photo {
+    flex-shrink: 0;
+}
+
+.hero-content {
+    text-align: center;
+}
+
+/* Photo cadre */
+.hero-frame {
+    width: 380px;
+    height: 500px;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 3px solid var(--sage-light);
+    box-shadow: 0 8px 40px rgba(156, 175, 136, 0.15);
+}
+
+.hero-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
+.hero-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--sage-dark);
+    margin-bottom: 0.5rem;
+}
+
+.hero h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 4rem;
+    color: var(--text-dark);
+    letter-spacing: 1px;
+    font-weight: 500;
+    line-height: 0.9;
+    margin: 0;
+}
+
+.hero .ampersand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: var(--sage-dark);
+    margin: 0.2rem 0;
+    font-style: italic;
+    font-weight: 300;
+}
+
+.hero-separator {
+    margin: 1rem auto;
+    width: 200px;
+}
+
+.hero-flourish {
+    width: 100%;
+    height: 20px;
+}
+
+.hero-date {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.hero .btn {
+    margin-bottom: 1rem;
+}
+
+/* Decorations botaniques */
+.botanical {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.botanical--top-left {
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 250px;
+}
+
+.botanical--top-right {
+    top: 0;
+    right: 0;
+    width: 250px;
+    height: 250px;
+}
+
+.botanical--bottom-left {
+    bottom: 0;
+    left: 20px;
+    width: 150px;
+    height: 150px;
+}
+
+.botanical--bottom-right {
+    bottom: 0;
+    right: 20px;
+    width: 150px;
+    height: 150px;
+}
+
+.botanical svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Countdown */
+.countdown {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sage-light);
+}
+
+.countdown-item {
+    text-align: center;
+}
+
+.countdown-number {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--sage-dark);
+    line-height: 1;
+}
+
+.countdown-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    margin-top: 0.3rem;
+    display: block;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2.5s infinite;
+}
+
+.scroll-indicator svg {
+    width: 28px;
+    height: 28px;
+    stroke: var(--sage);
+    opacity: 0.5;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-8px); }
+    60% { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ============================================
+   AGENDA / TIMELINE
+   ============================================ */
+.timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--sage-light);
+    transform: translateX(-50%);
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3.5rem;
+    position: relative;
+}
+
+.timeline-item:nth-child(odd) {
+    flex-direction: row-reverse;
+}
+
+.timeline-time {
+    width: 45%;
+    text-align: right;
+    padding-right: 3rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--sage-dark);
+}
+
+.timeline-item:nth-child(odd) .timeline-time {
+    text-align: left;
+    padding-right: 0;
+    padding-left: 3rem;
+}
+
+.timeline-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--sage);
+    border: 2px solid var(--ivory);
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    box-shadow: 0 0 0 3px var(--sage-light);
+}
+
+.timeline-content {
+    width: 45%;
+    padding-left: 3rem;
+}
+
+.timeline-item:nth-child(odd) .timeline-content {
+    padding-left: 0;
+    padding-right: 3rem;
+    text-align: right;
+}
+
+.timeline-content h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.3rem;
+    color: var(--text-dark);
+}
+
+.timeline-content p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   LIEU / CARTE
+   ============================================ */
+
+.lieu-container {
+    max-width: 900px;
+}
+
+.lieu-adresse {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.lieu-map {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.lieu-map iframe {
+    display: block;
+}
+
+.lieu-infos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.lieu-info-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.lieu-info-card:hover {
+    transform: translateY(-3px);
+}
+
+.lieu-info-icon {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 0.8rem;
+    color: var(--sage-dark);
+}
+
+.lieu-info-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.lieu-info-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--sage-dark);
+    margin-bottom: 0.4rem;
+}
+
+.lieu-info-card p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.lieu-actions {
+    text-align: center;
+}
+
+.lieu-btn {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .lieu-infos {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* ============================================
+   FORMULAIRES
+   ============================================ */
+.form-group {
+    margin-bottom: 1.8rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Radio & Checkbox custom */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.radio-option,
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.radio-option input[type="radio"],
+.checkbox-option input[type="checkbox"] {
+    accent-color: var(--sage-dark);
+    width: 18px;
+    height: 18px;
+}
+
+.form-note {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 0.5rem;
+    line-height: 1.6;
+}
+
+.form-divider {
+    text-align: center;
+    margin: 1.5rem 0 1rem;
+    position: relative;
+}
+
+.form-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+}
+
+.form-divider span {
+    background: var(--cream);
+    padding: 0 1rem;
+    position: relative;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--sage-dark);
+}
+
+/* Boutons */
+.btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--sage);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: var(--sage-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(122, 144, 104, 0.25);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--sage-dark);
+    border: 1px solid var(--sage);
+}
+
+.btn-outline:hover {
+    background: var(--sage);
+    color: var(--white);
+}
+
+.btn-large {
+    padding: 1.3rem 4rem;
+    font-size: 0.8rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Messages formulaire */
+.form-message {
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    margin-top: 1.5rem;
+    display: none;
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+.form-message.success {
+    background: rgba(156, 175, 136, 0.12);
+    color: var(--sage-dark);
+    border: 1px solid var(--sage-light);
+    display: block;
+}
+
+.form-message.error {
+    background: rgba(200, 80, 80, 0.08);
+    color: #a04040;
+    border: 1px solid #d4a0a0;
+    display: block;
+}
+
+/* ============================================
+   CAGNOTTE
+   ============================================ */
+.cagnotte-card {
+    background: var(--white);
+    border-radius: 4px;
+    padding: 3.5rem;
+    text-align: center;
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.04);
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+}
+
+.cagnotte-card p {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    line-height: 1.9;
+    font-size: 0.95rem;
+}
+
+.cagnotte-image {
+    width: 100%;
+    margin: -3rem -3rem 1.5rem -3rem;
+    width: calc(100% + 6rem);
+    border-radius: 4px 4px 0 0;
+    overflow: hidden;
+    max-height: 280px;
+}
+
+.cagnotte-image img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    object-position: center 40%;
+    display: block;
+}
+
+.cagnotte-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.cagnotte-progress-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 2rem;
+}
+
+.cagnotte-progress-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.cagnotte-collected {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--sage-dark);
+}
+
+.cagnotte-goal {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    letter-spacing: 1px;
+}
+
+.cagnotte-progress-bar {
+    width: 100%;
+    height: 12px;
+    background: var(--cream);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.cagnotte-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage), var(--sage-dark));
+    border-radius: 6px;
+    transition: width 1.5s ease-in-out;
+    min-width: 0;
+}
+
+.cagnotte-percent {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    margin-top: 0.4rem;
+    letter-spacing: 1px;
+}
+
+.cagnotte-iframe-wrapper {
+    max-width: 100%;
+    margin: 2rem auto 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.04);
+    background: var(--white);
+}
+
+.cagnotte-iframe {
+    width: 100%;
+    height: 800px;
+    border: none;
+    display: block;
+}
+
+/* ============================================
+   PHOTOS
+   ============================================ */
+.photos-upload-area {
+    background: var(--white);
+    border: 1px dashed var(--sage);
+    border-radius: 4px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.photos-upload-area:hover {
+    border-color: var(--sage-dark);
+    background: rgba(156, 175, 136, 0.03);
+}
+
+.photos-upload-area p {
+    color: var(--text-light);
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+    color: var(--sage);
+    opacity: 0.7;
+}
+
+.photos-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.gallery-item {
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    position: relative;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.03);
+}
+
+.gallery-item .photo-author {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.4));
+    color: white;
+    font-size: 0.75rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Upload progress */
+.upload-progress {
+    display: none;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--champagne);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--sage);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.site-footer {
+    background: var(--text-dark);
+    color: var(--sage-light);
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.site-footer p {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    letter-spacing: 2px;
+    font-weight: 300;
+}
+
+.footer-names {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.2rem;
+    color: var(--sage-light);
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   ANIMATIONS AU SCROLL
+   ============================================ */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .hero {
+        padding: 4.5rem 1rem 2rem;
+    }
+
+    .hero-layout {
+        flex-direction: column;
+        max-height: none;
+        min-height: auto;
+    }
+
+    .hero-photo-side {
+        height: 250px;
+    }
+
+    .hero-card {
+        margin-left: 0;
+        margin-top: -30px;
+        border-radius: 30px 30px 0 0;
+        padding: 2rem 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero-date-num {
+        font-size: 3rem;
+    }
+
+    .botanical--top-left,
+    .botanical--top-right {
+        width: 150px;
+        height: 150px;
+    }
+
+    .botanical--bottom-left,
+    .botanical--bottom-right {
+        width: 100px;
+        height: 100px;
+    }
+
+    .hero-box {
+        padding: 1.5rem;
+        margin: 0 1rem;
+    }
+
+    .hero-layout {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .hero-frame {
+        width: 240px;
+        height: 320px;
+    }
+
+    .hero-arabesque {
+        width: 70px;
+        height: 70px;
+    }
+
+    .hero .ampersand {
+        font-size: 1.8rem;
+    }
+
+    .countdown {
+        gap: 1.5rem;
+    }
+
+    .countdown-number {
+        font-size: 2.2rem;
+    }
+
+    .section {
+        padding: 5rem 1.5rem;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+    }
+
+    /* Nav mobile */
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-logo {
+        margin-right: 0;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+        text-align: center;
+        border-top: 1px solid var(--border);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 0.8rem 1rem;
+    }
+
+    .nav-container {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 0.8rem 1.5rem;
+    }
+
+    /* Timeline mobile */
+    .timeline::before {
+        left: 20px;
+    }
+
+    .timeline-item,
+    .timeline-item:nth-child(odd) {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 50px;
+    }
+
+    .timeline-time,
+    .timeline-item:nth-child(odd) .timeline-time {
+        width: 100%;
+        text-align: left;
+        padding: 0;
+        margin-bottom: 0.3rem;
+    }
+
+    .timeline-content,
+    .timeline-item:nth-child(odd) .timeline-content {
+        width: 100%;
+        padding: 0;
+        text-align: left;
+    }
+
+    .timeline-dot {
+        left: 20px;
+    }
+
+    .photos-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    .cagnotte-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .cagnotte-image {
+        margin: -2rem -1.5rem 1.5rem -1.5rem;
+        width: calc(100% + 3rem);
+    }
+
+    .cagnotte-image img {
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2.8rem;
+    }
+
+    .countdown-number {
+        font-size: 1.8rem;
+    }
+
+    .countdown {
+        gap: 1rem;
+    }
+}
