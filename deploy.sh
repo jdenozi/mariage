@@ -8,13 +8,12 @@ set -euo pipefail
 # Ex:    ./deploy.sh julien@monserveur.com
 #
 # Prerequis sur le serveur:
-#   - Docker & Docker Compose installes
+#   - Podman installe
 #   - Acces SSH avec cle (sans mot de passe)
 # ============================================
 
 REMOTE="${1:-}"
 REMOTE_DIR="/opt/mariage"
-PROJECT_NAME="mariage"
 
 # Couleurs
 GREEN='\033[0;32m'
@@ -46,8 +45,8 @@ log "Deploiement vers ${REMOTE}:${REMOTE_DIR}..."
 # Verification SSH
 ssh -q -o ConnectTimeout=5 "$REMOTE" "echo ok" > /dev/null 2>&1 || err "Impossible de se connecter a $REMOTE"
 
-# Verification Docker sur le serveur
-ssh "$REMOTE" "command -v docker > /dev/null 2>&1" || err "Docker n'est pas installe sur $REMOTE"
+# Verification Podman sur le serveur
+ssh "$REMOTE" "command -v podman > /dev/null 2>&1" || err "Podman n'est pas installe sur $REMOTE"
 
 log "Creation du repertoire distant..."
 ssh "$REMOTE" "mkdir -p ${REMOTE_DIR}"
@@ -61,8 +60,38 @@ rsync -avz --delete \
     --exclude 'package-lock.json' \
     ./ "${REMOTE}:${REMOTE_DIR}/"
 
-log "Lancement des containers..."
-ssh "$REMOTE" "cd ${REMOTE_DIR} && docker compose down 2>/dev/null; docker compose up -d --build"
+# ============================================
+# Creation du pod et des containers Podman
+# ============================================
+log "Arret des anciens containers..."
+ssh "$REMOTE" "podman pod stop mariage-pod 2>/dev/null; podman pod rm mariage-pod 2>/dev/null; true"
+
+log "Creation du pod..."
+ssh "$REMOTE" "podman pod create --name mariage-pod -p 8888:80 -p 8889:80"
+
+log "Lancement de MySQL..."
+ssh "$REMOTE" "podman run -d --pod mariage-pod --name mariage-db \
+    -e MYSQL_DATABASE=wordpress \
+    -e MYSQL_USER=wordpress \
+    -e MYSQL_PASSWORD=wordpress \
+    -e MYSQL_ROOT_PASSWORD=rootpassword \
+    -v mariage_db:/var/lib/mysql \
+    docker.io/library/mysql:8.0"
+
+log "Attente de MySQL..."
+ssh "$REMOTE" "for i in \$(seq 1 30); do podman exec mariage-db mysqladmin ping -h localhost --silent 2>/dev/null && break; sleep 2; done"
+
+log "Lancement de WordPress..."
+ssh "$REMOTE" "podman run -d --pod mariage-pod --name mariage-wp \
+    -e WORDPRESS_DB_HOST=127.0.0.1 \
+    -e WORDPRESS_DB_USER=wordpress \
+    -e WORDPRESS_DB_PASSWORD=wordpress \
+    -e WORDPRESS_DB_NAME=wordpress \
+    -v ${REMOTE_DIR}/wp-content/themes/mariage-julie-julien:/var/www/html/wp-content/themes/mariage-julie-julien:Z \
+    -v ${REMOTE_DIR}/wp-content/plugins/mariage-forms:/var/www/html/wp-content/plugins/mariage-forms:Z \
+    -v mariage_uploads:/var/www/html/wp-content/uploads \
+    docker.io/library/wordpress:latest"
 
 log "Deploiement termine !"
-warn "Pensez a configurer un reverse proxy (nginx/traefik) pour le HTTPS."
+log "Site accessible sur http://\$(echo $REMOTE | cut -d@ -f2):8888"
+warn "Pensez a configurer un reverse proxy (nginx/caddy) pour le HTTPS."
