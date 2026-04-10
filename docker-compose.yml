@@ -1,8 +1,6 @@
 services:
   wordpress:
     image: wordpress:latest
-    ports:
-      - "8888:80"
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress
@@ -16,6 +14,15 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - default
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mariage.rule=Host(`julie-julien-mariage.fr`) || Host(`www.julie-julien-mariage.fr`)"
+      - "traefik.http.routers.mariage.entrypoints=websecure"
+      - "traefik.http.routers.mariage.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mariage.loadbalancer.server.port=80"
 
   db:
     image: mysql:8.0
@@ -48,3 +55,7 @@ services:
 volumes:
   db_data:
   wp_uploads:
+
+networks:
+  web:
+    external: true
