@@ -15,6 +15,7 @@ class Mariage_DB_Setup {
             membres_groupe TEXT,
             enfants VARCHAR(10) DEFAULT 'non',
             nb_enfants INT DEFAULT 0,
+            transport VARCHAR(20) DEFAULT 'voiture',
             discours VARCHAR(10) DEFAULT 'non',
             commentaire TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -64,6 +64,26 @@ $note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous preferons que 
                     <input type="number" id="rsvp-nb-enfants" name="nb_enfants" min="1" max="10" value="1">
                 </div>
 
+                <!-- Transport -->
+                <div class="form-group">
+                    <label>Comment viendrez-vous ?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="transport" value="voiture" checked>
+                            <span>En voiture</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="transport" value="tram">
+                            <span>En tram</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="transport" value="pied">
+                            <span>A pied</span>
+                        </label>
+                    </div>
+                    <p class="form-note">15 places de parking sont disponibles sur le domaine. Les premiers a repondre auront la priorite !</p>
+                </div>
+
                 <!-- Discours -->
                 <div class="form-group">
                     <label>Souhaitez-vous faire un discours ou une animation ?</label>

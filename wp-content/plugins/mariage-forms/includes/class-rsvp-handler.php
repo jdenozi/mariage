@@ -15,6 +15,7 @@ class Mariage_RSVP_Handler {
         $nb_personnes = absint($_POST['nb_personnes'] ?? 1);
         $enfants = sanitize_text_field($_POST['enfants'] ?? 'non');
         $nb_enfants = absint($_POST['nb_enfants'] ?? 0);
+        $transport = sanitize_text_field($_POST['transport'] ?? 'voiture');
         $discours = sanitize_text_field($_POST['discours'] ?? 'non');
         $commentaire = sanitize_textarea_field($_POST['commentaire'] ?? '');
 
@@ -67,8 +68,12 @@ class Mariage_RSVP_Handler {
         if (!in_array('enfants', $cols)) {
             $wpdb->query("ALTER TABLE $table ADD COLUMN enfants VARCHAR(10) DEFAULT 'non' AFTER membres_groupe");
             $wpdb->query("ALTER TABLE $table ADD COLUMN nb_enfants INT DEFAULT 0 AFTER enfants");
-            $wpdb->query("ALTER TABLE $table ADD COLUMN discours VARCHAR(10) DEFAULT 'non' AFTER nb_enfants");
+            $wpdb->query("ALTER TABLE $table ADD COLUMN transport VARCHAR(20) DEFAULT 'voiture' AFTER nb_enfants");
+            $wpdb->query("ALTER TABLE $table ADD COLUMN discours VARCHAR(10) DEFAULT 'non' AFTER transport");
             $wpdb->query("ALTER TABLE $table ADD COLUMN commentaire TEXT AFTER discours");
+        }
+        if (!in_array('transport', $cols)) {
+            $wpdb->query("ALTER TABLE $table ADD COLUMN transport VARCHAR(20) DEFAULT 'voiture' AFTER nb_enfants");
         }
 
         $nom = !empty($membres) ? $membres[0]['nom'] : '';
@@ -80,10 +85,11 @@ class Mariage_RSVP_Handler {
             'membres_groupe'  => wp_json_encode($membres),
             'enfants'         => $presence === 'oui' ? $enfants : 'non',
             'nb_enfants'      => ($presence === 'oui' && $enfants === 'oui') ? $nb_enfants : 0,
+            'transport'       => $presence === 'oui' ? $transport : '',
             'discours'        => $presence === 'oui' ? $discours : 'non',
             'commentaire'     => $commentaire,
         ];
-        $format = ['%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s'];
+        $format = ['%s', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s'];
 
         // Check if already submitted with same email
         $existing = $wpdb->get_row(

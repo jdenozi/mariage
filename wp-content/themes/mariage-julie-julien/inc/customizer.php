@@ -153,7 +153,7 @@ function mariage_export_csv() {
     $table = $wpdb->prefix . 'mariage_rsvp';
     $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
     $filename = 'reponses-' . date('Y-m-d') . '.csv';
-    $headers = ['Email', 'Presence', 'Nb personnes', 'Membres', 'Allergies', 'Enfants', 'Nb enfants', 'Discours', 'Commentaire', 'Date'];
+    $headers = ['Email', 'Presence', 'Nb personnes', 'Membres', 'Allergies', 'Enfants', 'Nb enfants', 'Transport', 'Discours', 'Commentaire', 'Date'];
 
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $filename);
@@ -185,6 +185,7 @@ function mariage_export_csv() {
             !empty($allergies_list) ? implode(' | ', $allergies_list) : 'Aucune',
             isset($row->enfants) ? ($row->enfants === 'oui' ? 'Oui' : 'Non') : 'Non',
             isset($row->nb_enfants) ? $row->nb_enfants : 0,
+            isset($row->transport) ? $row->transport : '',
             isset($row->discours) ? ($row->discours === 'oui' ? 'Oui' : 'Non') : 'Non',
             isset($row->commentaire) ? $row->commentaire : '',
             $row->created_at,
@@ -583,13 +584,14 @@ function mariage_rsvp_page() {
 
     $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
 
-    $total_oui = $total_non = $total_personnes = $total_enfants = $total_allergies = $total_discours = 0;
+    $total_oui = $total_non = $total_personnes = $total_enfants = $total_allergies = $total_discours = $total_voiture = 0;
     foreach ($results as $r) {
         if ($r->presence === 'oui') {
             $total_oui++;
             $total_personnes += $r->nb_personnes;
             if (isset($r->nb_enfants)) $total_enfants += $r->nb_enfants;
             if (isset($r->discours) && $r->discours === 'oui') $total_discours++;
+            if (isset($r->transport) && $r->transport === 'voiture') $total_voiture++;
             if (!empty($r->membres_groupe)) {
                 $group = json_decode($r->membres_groupe, true);
                 if (is_array($group)) {
@@ -633,6 +635,10 @@ function mariage_rsvp_page() {
                 <span class="mariage-stat-number"><?php echo $total_discours; ?></span>
                 <span class="mariage-stat-label">Discours</span>
             </div>
+            <div class="mariage-stat mariage-stat--blue">
+                <span class="mariage-stat-number"><?php echo $total_voiture; ?>/15</span>
+                <span class="mariage-stat-label">Parking</span>
+            </div>
         </div>
 
         <p><a href="<?php echo esc_url($export_url); ?>" class="button">Exporter en CSV</a></p>
@@ -644,6 +650,7 @@ function mariage_rsvp_page() {
                     <th>Presence</th>
                     <th>Membres (allergies)</th>
                     <th>Enfants</th>
+                    <th>Transport</th>
                     <th>Discours</th>
                     <th>Commentaire</th>
                     <th>Date</th>
@@ -652,7 +659,7 @@ function mariage_rsvp_page() {
             </thead>
             <tbody>
                 <?php if (empty($results)): ?>
-                    <tr><td colspan="8">Aucune reponse pour le moment.</td></tr>
+                    <tr><td colspan="9">Aucune reponse pour le moment.</td></tr>
                 <?php else: ?>
                     <?php foreach ($results as $row):
                         $membres = [];
@@ -696,6 +703,13 @@ function mariage_rsvp_page() {
                                 <?php else: ?>
                                     <span style="color:#999;">Non</span>
                                 <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php
+                                    $transport = isset($row->transport) ? $row->transport : '';
+                                    $transport_labels = ['voiture' => 'Voiture', 'tram' => 'Tram', 'pied' => 'A pied'];
+                                    echo esc_html($transport_labels[$transport] ?? '—');
+                                ?>
                             </td>
                             <td>
                                 <span class="mariage-badge mariage-badge--<?php echo $discours === 'oui' ? 'green' : 'grey'; ?>">

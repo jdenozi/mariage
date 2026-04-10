@@ -41,7 +41,7 @@ function mariage_enqueue_assets() {
         'mariage-main',
         get_template_directory_uri() . '/assets/js/main.js',
         [],
-        '1.4',
+        '1.5',
         true
     );
 
