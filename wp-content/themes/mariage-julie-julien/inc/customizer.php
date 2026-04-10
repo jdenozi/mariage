@@ -16,8 +16,7 @@ function mariage_admin_menu() {
     );
 
     add_submenu_page('mariage-settings', 'Contenu du site', 'Contenu du site', 'manage_options', 'mariage-settings', 'mariage_settings_page');
-    add_submenu_page('mariage-settings', 'Reponses RSVP', 'Reponses RSVP', 'manage_options', 'mariage-rsvp', 'mariage_rsvp_page');
-    add_submenu_page('mariage-settings', 'Reponses Questionnaire', 'Questionnaire', 'manage_options', 'mariage-questionnaire-responses', 'mariage_questionnaire_page');
+    add_submenu_page('mariage-settings', 'Reponses RSVP', 'Reponses', 'manage_options', 'mariage-rsvp', 'mariage_rsvp_page');
     add_submenu_page('mariage-settings', 'Gestion Photos', 'Photos', 'manage_options', 'mariage-photos-admin', 'mariage_photos_page');
 }
 add_action('admin_menu', 'mariage_admin_menu');
@@ -27,7 +26,6 @@ function mariage_admin_assets($hook) {
     $allowed = [
         'toplevel_page_mariage-settings',
         'mon-mariage_page_mariage-rsvp',
-        'mon-mariage_page_mariage-questionnaire-responses',
         'mon-mariage_page_mariage-photos-admin',
     ];
     if (!in_array($hook, $allowed)) return;
@@ -150,27 +148,47 @@ function mariage_export_csv() {
     global $wpdb;
     $type = sanitize_text_field($_GET['mariage_export']);
 
-    if ($type === 'rsvp') {
-        $table = $wpdb->prefix . 'mariage_rsvp';
-        $results = $wpdb->get_results("SELECT nom, email, presence, nb_personnes, created_at FROM $table ORDER BY created_at DESC", ARRAY_A);
-        $filename = 'rsvp-' . date('Y-m-d') . '.csv';
-        $headers = ['Nom', 'Email', 'Presence', 'Nb personnes', 'Date'];
-    } elseif ($type === 'questionnaire') {
-        $table = $wpdb->prefix . 'mariage_questionnaire';
-        $results = $wpdb->get_results("SELECT nom, allergies, texte_allergies, nom2, allergies2, texte_allergies2, en_couple, enfants, nb_enfants, discours, commentaire, created_at FROM $table ORDER BY created_at DESC", ARRAY_A);
-        $filename = 'questionnaire-' . date('Y-m-d') . '.csv';
-        $headers = ['Nom', 'Allergies', 'Detail allergies', 'Conjoint(e)', 'Allergies conjoint', 'Detail allergies conjoint', 'En couple', 'Enfants', 'Nb enfants', 'Discours', 'Commentaire', 'Date'];
-    } else {
-        return;
-    }
+    if ($type !== 'rsvp') return;
+
+    $table = $wpdb->prefix . 'mariage_rsvp';
+    $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
+    $filename = 'reponses-' . date('Y-m-d') . '.csv';
+    $headers = ['Email', 'Presence', 'Nb personnes', 'Membres', 'Allergies', 'Enfants', 'Nb enfants', 'Discours', 'Commentaire', 'Date'];
 
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=' . $filename);
     $output = fopen('php://output', 'w');
     fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM for Excel
     fputcsv($output, $headers, ';');
+
     foreach ($results as $row) {
-        fputcsv($output, $row, ';');
+        $membres = [];
+        $allergies_list = [];
+        if (!empty($row->membres_groupe)) {
+            $group = json_decode($row->membres_groupe, true);
+            if (is_array($group)) {
+                foreach ($group as $m) {
+                    $nom = is_array($m) ? $m['nom'] : $m;
+                    $membres[] = $nom;
+                    if (is_array($m) && isset($m['allergies']) && $m['allergies'] === 'oui' && !empty($m['texte_allergies'])) {
+                        $allergies_list[] = $nom . ': ' . $m['texte_allergies'];
+                    }
+                }
+            }
+        }
+
+        fputcsv($output, [
+            $row->email,
+            $row->presence === 'oui' ? 'Oui' : 'Non',
+            $row->nb_personnes,
+            implode(', ', $membres),
+            !empty($allergies_list) ? implode(' | ', $allergies_list) : 'Aucune',
+            isset($row->enfants) ? ($row->enfants === 'oui' ? 'Oui' : 'Non') : 'Non',
+            isset($row->nb_enfants) ? $row->nb_enfants : 0,
+            isset($row->discours) ? ($row->discours === 'oui' ? 'Oui' : 'Non') : 'Non',
+            isset($row->commentaire) ? $row->commentaire : '',
+            $row->created_at,
+        ], ';');
     }
     fclose($output);
     exit;
@@ -547,24 +565,39 @@ function mariage_rsvp_page() {
     $table = $wpdb->prefix . 'mariage_rsvp';
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$table'") !== $table) {
-        echo '<div class="wrap"><h1>RSVP</h1><p>La table n\'existe pas encore. Activez le plugin Mariage Forms.</p></div>';
+        echo '<div class="wrap"><h1>Reponses</h1><p>La table n\'existe pas encore. Activez le plugin Mariage Forms.</p></div>';
         return;
     }
 
-    // Migrate: add couple columns if missing
+    // Migrate: add new columns if missing
     $cols = $wpdb->get_col("DESCRIBE $table", 0);
-    if (!in_array('nom2', $cols)) {
-        $wpdb->query("ALTER TABLE $table ADD COLUMN en_couple VARCHAR(10) DEFAULT 'non' AFTER nb_personnes");
-        $wpdb->query("ALTER TABLE $table ADD COLUMN nom2 VARCHAR(255) DEFAULT '' AFTER en_couple");
+    if (!in_array('membres_groupe', $cols)) {
+        $wpdb->query("ALTER TABLE $table ADD COLUMN membres_groupe TEXT AFTER nb_personnes");
+    }
+    if (!in_array('enfants', $cols)) {
+        $wpdb->query("ALTER TABLE $table ADD COLUMN enfants VARCHAR(10) DEFAULT 'non' AFTER membres_groupe");
+        $wpdb->query("ALTER TABLE $table ADD COLUMN nb_enfants INT DEFAULT 0 AFTER enfants");
+        $wpdb->query("ALTER TABLE $table ADD COLUMN discours VARCHAR(10) DEFAULT 'non' AFTER nb_enfants");
+        $wpdb->query("ALTER TABLE $table ADD COLUMN commentaire TEXT AFTER discours");
     }
 
     $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
 
-    $total_oui = $total_non = $total_personnes = 0;
+    $total_oui = $total_non = $total_personnes = $total_enfants = $total_allergies = $total_discours = 0;
     foreach ($results as $r) {
         if ($r->presence === 'oui') {
             $total_oui++;
             $total_personnes += $r->nb_personnes;
+            if (isset($r->nb_enfants)) $total_enfants += $r->nb_enfants;
+            if (isset($r->discours) && $r->discours === 'oui') $total_discours++;
+            if (!empty($r->membres_groupe)) {
+                $group = json_decode($r->membres_groupe, true);
+                if (is_array($group)) {
+                    foreach ($group as $m) {
+                        if (is_array($m) && isset($m['allergies']) && $m['allergies'] === 'oui') $total_allergies++;
+                    }
+                }
+            }
         } else {
             $total_non++;
         }
@@ -573,7 +606,7 @@ function mariage_rsvp_page() {
     $export_url = wp_nonce_url(admin_url('admin.php?page=mariage-rsvp&mariage_export=rsvp'), 'mariage_export');
     ?>
     <div class="wrap mariage-admin">
-        <h1>Reponses RSVP</h1>
+        <h1>Reponses</h1>
 
         <div class="mariage-stats">
             <div class="mariage-stat mariage-stat--green">
@@ -586,112 +619,15 @@ function mariage_rsvp_page() {
             </div>
             <div class="mariage-stat mariage-stat--blue">
                 <span class="mariage-stat-number"><?php echo $total_personnes; ?></span>
-                <span class="mariage-stat-label">Total personnes</span>
+                <span class="mariage-stat-label">Total adultes</span>
             </div>
             <div class="mariage-stat mariage-stat--grey">
-                <span class="mariage-stat-number"><?php echo count($results); ?></span>
-                <span class="mariage-stat-label">Reponses</span>
-            </div>
-        </div>
-
-        <p><a href="<?php echo esc_url($export_url); ?>" class="button">Exporter en CSV</a></p>
-
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Conjoint(e)</th>
-                    <th>Email</th>
-                    <th>Presence</th>
-                    <th>Nb personnes</th>
-                    <th>Date</th>
-                    <th width="80"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($results)): ?>
-                    <tr><td colspan="7">Aucune reponse pour le moment.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($results as $row):
-                        $has_couple = isset($row->en_couple) && $row->en_couple === 'oui';
-                    ?>
-                        <tr id="rsvp-row-<?php echo $row->id; ?>">
-                            <td><strong><?php echo esc_html($row->nom); ?></strong></td>
-                            <td>
-                                <?php if ($has_couple): ?>
-                                    <strong><?php echo esc_html($row->nom2); ?></strong>
-                                <?php else: ?>
-                                    <span style="color:#999;">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><a href="mailto:<?php echo esc_attr($row->email); ?>"><?php echo esc_html($row->email); ?></a></td>
-                            <td>
-                                <span class="mariage-badge mariage-badge--<?php echo $row->presence === 'oui' ? 'green' : 'red'; ?>">
-                                    <?php echo $row->presence === 'oui' ? 'Oui' : 'Non'; ?>
-                                </span>
-                            </td>
-                            <td><?php echo esc_html($row->nb_personnes); ?></td>
-                            <td><?php echo date('d/m/Y H:i', strtotime($row->created_at)); ?></td>
-                            <td>
-                                <button type="button" class="button-link mariage-delete-btn" data-type="rsvp" data-id="<?php echo $row->id; ?>">
-                                    <span class="dashicons dashicons-trash" style="color:#b32d2e;"></span>
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-    <?php
-}
-
-// ==========================================
-// PAGE: Questionnaire Responses
-// ==========================================
-function mariage_questionnaire_page() {
-    global $wpdb;
-    $table = $wpdb->prefix . 'mariage_questionnaire';
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table'") !== $table) {
-        echo '<div class="wrap"><h1>Questionnaire</h1><p>La table n\'existe pas encore. Activez le plugin Mariage Forms.</p></div>';
-        return;
-    }
-
-    // Migrate: add couple columns if missing
-    $cols = $wpdb->get_col("DESCRIBE $table", 0);
-    if (!in_array('nom2', $cols)) {
-        $wpdb->query("ALTER TABLE $table ADD COLUMN nom2 VARCHAR(255) DEFAULT '' AFTER texte_allergies");
-        $wpdb->query("ALTER TABLE $table ADD COLUMN allergies2 VARCHAR(10) DEFAULT 'non' AFTER nom2");
-        $wpdb->query("ALTER TABLE $table ADD COLUMN texte_allergies2 TEXT AFTER allergies2");
-        $wpdb->query("ALTER TABLE $table ADD COLUMN en_couple VARCHAR(10) DEFAULT 'non' AFTER texte_allergies2");
-    }
-
-    $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
-    $export_url = wp_nonce_url(admin_url('admin.php?page=mariage-questionnaire-responses&mariage_export=questionnaire'), 'mariage_export');
-
-    $total_allergies = $total_enfants = $total_discours = 0;
-    foreach ($results as $r) {
-        if ($r->allergies === 'oui') $total_allergies++;
-        if ($r->enfants === 'oui') $total_enfants += $r->nb_enfants;
-        if ($r->discours === 'oui') $total_discours++;
-    }
-    ?>
-    <div class="wrap mariage-admin">
-        <h1>Reponses Questionnaire</h1>
-
-        <div class="mariage-stats">
-            <div class="mariage-stat mariage-stat--grey">
-                <span class="mariage-stat-number"><?php echo count($results); ?></span>
-                <span class="mariage-stat-label">Reponses</span>
+                <span class="mariage-stat-number"><?php echo $total_enfants; ?></span>
+                <span class="mariage-stat-label">Enfants</span>
             </div>
             <div class="mariage-stat mariage-stat--red">
                 <span class="mariage-stat-number"><?php echo $total_allergies; ?></span>
-                <span class="mariage-stat-label">Avec allergies</span>
-            </div>
-            <div class="mariage-stat mariage-stat--blue">
-                <span class="mariage-stat-number"><?php echo $total_enfants; ?></span>
-                <span class="mariage-stat-label">Enfants</span>
+                <span class="mariage-stat-label">Allergies</span>
             </div>
             <div class="mariage-stat mariage-stat--green">
                 <span class="mariage-stat-number"><?php echo $total_discours; ?></span>
@@ -704,10 +640,9 @@ function mariage_questionnaire_page() {
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Allergies</th>
-                    <th>Conjoint(e)</th>
-                    <th>Allergies conjoint(e)</th>
+                    <th>Email</th>
+                    <th>Presence</th>
+                    <th>Membres (allergies)</th>
                     <th>Enfants</th>
                     <th>Discours</th>
                     <th>Commentaire</th>
@@ -717,50 +652,60 @@ function mariage_questionnaire_page() {
             </thead>
             <tbody>
                 <?php if (empty($results)): ?>
-                    <tr><td colspan="9">Aucune reponse pour le moment.</td></tr>
+                    <tr><td colspan="8">Aucune reponse pour le moment.</td></tr>
                 <?php else: ?>
                     <?php foreach ($results as $row):
-                        $has_couple = isset($row->en_couple) && $row->en_couple === 'oui';
+                        $membres = [];
+                        if (!empty($row->membres_groupe)) {
+                            $membres = json_decode($row->membres_groupe, true);
+                            if (!is_array($membres)) $membres = [];
+                        }
+                        $enfants = isset($row->enfants) ? $row->enfants : 'non';
+                        $nb_enfants = isset($row->nb_enfants) ? $row->nb_enfants : 0;
+                        $discours = isset($row->discours) ? $row->discours : 'non';
+                        $commentaire = isset($row->commentaire) ? $row->commentaire : '';
                     ?>
-                        <tr id="questionnaire-row-<?php echo $row->id; ?>">
-                            <td><strong><?php echo esc_html($row->nom); ?></strong></td>
+                        <tr id="rsvp-row-<?php echo $row->id; ?>">
+                            <td><a href="mailto:<?php echo esc_attr($row->email); ?>"><?php echo esc_html($row->email); ?></a></td>
                             <td>
-                                <span class="mariage-badge mariage-badge--<?php echo $row->allergies === 'oui' ? 'red' : 'green'; ?>">
-                                    <?php echo $row->allergies === 'oui' ? 'Oui' : 'Non'; ?>
-                                </span>
-                                <?php if ($row->allergies === 'oui' && $row->texte_allergies): ?>
-                                    <br><small><?php echo esc_html($row->texte_allergies); ?></small>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($has_couple): ?>
-                                    <strong><?php echo esc_html($row->nom2); ?></strong>
-                                <?php else: ?>
-                                    <span style="color:#999;">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($has_couple): ?>
-                                    <span class="mariage-badge mariage-badge--<?php echo $row->allergies2 === 'oui' ? 'red' : 'green'; ?>">
-                                        <?php echo $row->allergies2 === 'oui' ? 'Oui' : 'Non'; ?>
-                                    </span>
-                                    <?php if ($row->allergies2 === 'oui' && !empty($row->texte_allergies2)): ?>
-                                        <br><small><?php echo esc_html($row->texte_allergies2); ?></small>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <span style="color:#999;">—</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?php echo $row->enfants === 'oui' ? $row->nb_enfants . ' enfant(s)' : 'Non'; ?></td>
-                            <td>
-                                <span class="mariage-badge mariage-badge--<?php echo $row->discours === 'oui' ? 'green' : 'grey'; ?>">
-                                    <?php echo $row->discours === 'oui' ? 'Oui' : 'Non'; ?>
+                                <span class="mariage-badge mariage-badge--<?php echo $row->presence === 'oui' ? 'green' : 'red'; ?>">
+                                    <?php echo $row->presence === 'oui' ? 'Oui (' . esc_html($row->nb_personnes) . ')' : 'Non'; ?>
                                 </span>
                             </td>
-                            <td><?php echo esc_html($row->commentaire); ?></td>
-                            <td><?php echo date('d/m/Y', strtotime($row->created_at)); ?></td>
                             <td>
-                                <button type="button" class="button-link mariage-delete-btn" data-type="questionnaire" data-id="<?php echo $row->id; ?>">
+                                <?php if (!empty($membres)): ?>
+                                    <?php foreach ($membres as $m):
+                                        $nom = is_array($m) ? $m['nom'] : $m;
+                                        $has_allergy = is_array($m) && isset($m['allergies']) && $m['allergies'] === 'oui';
+                                        $allergy_text = is_array($m) ? ($m['texte_allergies'] ?? '') : '';
+                                    ?>
+                                        <div style="margin-bottom:4px;">
+                                            <strong><?php echo esc_html($nom); ?></strong>
+                                            <?php if ($has_allergy && !empty($allergy_text)): ?>
+                                                <br><small><span class="mariage-badge mariage-badge--red">Allergies</span> <?php echo esc_html($allergy_text); ?></small>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <em><?php echo esc_html($row->nom ?: '—'); ?></em>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($enfants === 'oui'): ?>
+                                    <?php echo esc_html($nb_enfants); ?> enfant(s)
+                                <?php else: ?>
+                                    <span style="color:#999;">Non</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="mariage-badge mariage-badge--<?php echo $discours === 'oui' ? 'green' : 'grey'; ?>">
+                                    <?php echo $discours === 'oui' ? 'Oui' : 'Non'; ?>
+                                </span>
+                            </td>
+                            <td><?php echo esc_html($commentaire); ?></td>
+                            <td><?php echo date('d/m/Y H:i', strtotime($row->created_at)); ?></td>
+                            <td>
+                                <button type="button" class="button-link mariage-delete-btn" data-type="rsvp" data-id="<?php echo $row->id; ?>">
                                     <span class="dashicons dashicons-trash" style="color:#b32d2e;"></span>
                                 </button>
                             </td>
