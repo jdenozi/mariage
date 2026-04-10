@@ -1,54 +1,74 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env bash
+set -uo pipefail
 
-# ============================================
-# Deploiement Site Mariage
-# ============================================
-# A executer directement sur le serveur.
-# Usage: ./deploy.sh v1.0.0
-# ============================================
+# ─── Configuration ───
+APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-TAG="${1:-}"
-DEPLOY_DIR="/opt/mariage"
-REPO_URL="git@github.com:jdenozi/mariage.git"
+# ─── Usage ───
+usage() {
+  echo "Usage: $0 <version>"
+  echo ""
+  echo "  <version>  Tag, branch or commit to deploy (e.g. v1.0.0, main, ada0d09)"
+  echo ""
+  echo "Examples:"
+  echo "  $0 v1.2.0        # Deploy tag v1.2.0"
+  echo "  $0 main          # Deploy latest main"
+  echo "  $0 abc1234       # Deploy specific commit"
+  exit 1
+}
 
-# Couleurs
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
-log()  { echo -e "${GREEN}[+]${NC} $1"; }
-warn() { echo -e "${YELLOW}[!]${NC} $1"; }
-err()  { echo -e "${RED}[x]${NC} $1"; exit 1; }
-
-[ -z "$TAG" ] && err "Usage: ./deploy.sh v1.0.0"
-
-command -v docker-compose > /dev/null 2>&1 || err "docker-compose n'est pas installe"
-command -v git > /dev/null 2>&1 || err "Git n'est pas installe"
-
-# ============================================
-# Recuperation du code
-# ============================================
-log "Recuperation du tag ${TAG}..."
-if [ -d "${DEPLOY_DIR}/.git" ]; then
-    cd "${DEPLOY_DIR}"
-    git fetch --tags
-    git checkout "${TAG}" || err "Tag ${TAG} introuvable"
-else
-    git clone "${REPO_URL}" "${DEPLOY_DIR}"
-    cd "${DEPLOY_DIR}"
-    git checkout "${TAG}" || err "Tag ${TAG} introuvable"
+# ─── Validate args ───
+if [ $# -lt 1 ]; then
+  usage
 fi
 
-# ============================================
-# Relance des containers
-# ============================================
-log "Arret des anciens containers..."
-docker-compose down 2>/dev/null || true
+VERSION="$1"
 
-log "Lancement des containers..."
-docker-compose up -d --build
+echo "╔══════════════════════════════════════╗"
+echo "║  Mariage — Deploy                    ║"
+echo "╚══════════════════════════════════════╝"
+echo ""
+echo "  Version:   $VERSION"
+echo "  Directory: $APP_DIR"
+echo ""
 
-log "Tag ${TAG} deploye !"
-warn "Pensez a configurer un reverse proxy (nginx/caddy) pour le HTTPS."
+cd "$APP_DIR"
+
+# ─── Fetch latest from GitHub ───
+echo "→ Fetching latest from origin..."
+git fetch origin --tags --force --prune || echo "  (fetch warning, continuing...)"
+
+# ─── Reset local changes and checkout ───
+echo "→ Checking out $VERSION..."
+git reset --hard
+git clean -fd
+git checkout "$VERSION" || { echo "✗ Failed to checkout $VERSION"; exit 1; }
+
+# ─── If on a branch, pull latest ───
+if git symbolic-ref -q HEAD > /dev/null 2>&1; then
+  echo "→ Pulling latest changes..."
+  git pull origin "$VERSION" || true
+fi
+
+# ─── Rebuild and restart containers ───
+echo "→ Building and restarting containers..."
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+
+# ─── Verify ───
+echo ""
+echo "→ Waiting for container to start..."
+sleep 5
+
+if docker-compose ps | grep -qE "running|Up"; then
+  echo ""
+  echo "✓ Deploy complete — $VERSION is live"
+  echo ""
+  docker-compose ps
+else
+  echo ""
+  echo "✗ Container failed to start. Logs:"
+  docker-compose logs --tail=30
+  exit 1
+fi
