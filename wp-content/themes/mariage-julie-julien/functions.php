@@ -81,9 +81,46 @@ function mariage_theme_setup() {
 }
 add_action('after_setup_theme', 'mariage_theme_setup');
 
-// Desactiver Gutenberg sur les pages pour utiliser l'editeur classique
-add_filter('use_block_editor_for_post_type', '__return_false', 10);
-add_filter('use_block_editor_for_post', '__return_false', 10);
+// Shortcodes pour les elements dynamiques
+// [mariage_rsvp] - Formulaire RSVP
+function mariage_rsvp_shortcode() {
+    ob_start();
+    get_template_part('template-parts/rsvp');
+    return ob_get_clean();
+}
+add_shortcode('mariage_rsvp', 'mariage_rsvp_shortcode');
+
+// [mariage_cagnotte] - Section cagnotte
+function mariage_cagnotte_shortcode() {
+    ob_start();
+    get_template_part('template-parts/cagnotte');
+    return ob_get_clean();
+}
+add_shortcode('mariage_cagnotte', 'mariage_cagnotte_shortcode');
+
+// [mariage_photos] - Section photos
+function mariage_photos_shortcode() {
+    ob_start();
+    get_template_part('template-parts/photos');
+    return ob_get_clean();
+}
+add_shortcode('mariage_photos', 'mariage_photos_shortcode');
+
+// [mariage_lieu] - Section lieu avec carte
+function mariage_lieu_shortcode() {
+    ob_start();
+    get_template_part('template-parts/lieu');
+    return ob_get_clean();
+}
+add_shortcode('mariage_lieu', 'mariage_lieu_shortcode');
+
+// [mariage_agenda] - Section programme
+function mariage_agenda_shortcode() {
+    ob_start();
+    get_template_part('template-parts/agenda');
+    return ob_get_clean();
+}
+add_shortcode('mariage_agenda', 'mariage_agenda_shortcode');
 
 // Set static front page programmatically
 function mariage_set_front_page() {

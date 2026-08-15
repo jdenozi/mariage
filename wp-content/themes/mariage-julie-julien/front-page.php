@@ -1,10 +1,12 @@
 <?php get_header(); ?>
 
-<?php get_template_part('template-parts/hero'); ?>
-<?php get_template_part('template-parts/agenda'); ?>
-<?php get_template_part('template-parts/lieu'); ?>
-<?php get_template_part('template-parts/rsvp'); ?>
-<?php get_template_part('template-parts/cagnotte'); ?>
-<?php get_template_part('template-parts/photos'); ?>
+<main class="site-main">
+    <?php
+    while (have_posts()) :
+        the_post();
+        the_content();
+    endwhile;
+    ?>
+</main>
 
 <?php get_footer(); ?>
