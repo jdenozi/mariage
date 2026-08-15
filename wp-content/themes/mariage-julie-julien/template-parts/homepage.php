@@ -81,7 +81,7 @@ $lieu_adresse = '5 rue du Pas du Loup, 34070 Montpellier';
         <p class="hero-date"><?php echo esc_html(strtoupper($date_display)); ?></p>
         <p class="hero-location"><?php echo esc_html($lieu_name); ?>, Montpellier</p>
 
-        <p class="hero-message">Nous avons hate de celebrer avec vous !</p>
+        <p class="hero-message">Nous avons hâte de célébrer avec vous !</p>
     </div>
 </section>
 
@@ -116,11 +116,11 @@ $lieu_adresse = '5 rue du Pas du Loup, 34070 Montpellier';
     <div style="max-width:900px;margin:0 auto;">
         <div style="text-align:center;margin-bottom:50px;">
             <p class="script-text" style="font-size:1.8rem;margin-bottom:5px;">Le Programme</p>
-            <h2 style="font-family:var(--font-serif);font-size:2rem;letter-spacing:0.1em;text-transform:uppercase;margin:0;">de la journee</h2>
+            <h2 style="font-family:var(--font-serif);font-size:2rem;letter-spacing:0.1em;text-transform:uppercase;margin:0;">de la journée</h2>
         </div>
 
         <div class="timeline">
-            <!-- Ceremonie -->
+            <!-- Cérémonie -->
             <div class="timeline-item">
                 <div class="timeline-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
@@ -130,8 +130,8 @@ $lieu_adresse = '5 rue du Pas du Loup, 34070 Montpellier';
                 </div>
                 <span class="timeline-time">12h00</span>
                 <div class="timeline-content">
-                    <h4>Ceremonie</h4>
-                    <p>Ceremonie laique dans les jardins</p>
+                    <h4>Cérémonie</h4>
+                    <p>Cérémonie laïque dans les jardins</p>
                 </div>
             </div>
 
@@ -160,7 +160,7 @@ $lieu_adresse = '5 rue du Pas du Loup, 34070 Montpellier';
                 <span class="timeline-time">16h00</span>
                 <div class="timeline-content">
                     <h4>Diner</h4>
-                    <p>Repas de fete</p>
+                    <p>Repas de fête</p>
                 </div>
             </div>
 
@@ -175,7 +175,7 @@ $lieu_adresse = '5 rue du Pas du Loup, 34070 Montpellier';
                 </div>
                 <span class="timeline-time">22h00</span>
                 <div class="timeline-content">
-                    <h4>Soiree dansante</h4>
+                    <h4>Soirée dansante</h4>
                     <p>Musique et celebration jusqu'au bout de la nuit</p>
                 </div>
             </div>

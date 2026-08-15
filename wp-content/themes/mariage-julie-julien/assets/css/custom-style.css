@@ -226,20 +226,24 @@ section {
    ========================================== */
 .timeline {
     position: relative;
-    max-width: 500px;
+    max-width: 550px;
     margin: 0 auto;
-    padding-left: 60px;
+    padding: 40px 30px 40px 80px;
+    background: var(--cream-dark);
+    border-radius: 20px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
 }
 
 /* Ligne verticale */
 .timeline::before {
     content: '';
     position: absolute;
-    left: 20px;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--sage-light);
+    left: 40px;
+    top: 40px;
+    bottom: 40px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--sage-light), var(--sage), var(--sage-light));
+    border-radius: 1px;
 }
 
 .timeline-item {
@@ -253,14 +257,14 @@ section {
 /* Icone sur la ligne */
 .timeline-icon {
     position: absolute;
-    left: -50px;
-    width: 40px;
-    height: 40px;
+    left: -60px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--cream);
-    border: 1px solid var(--sage);
+    background: var(--cream-dark);
+    border: 2px solid var(--sage);
     border-radius: 50%;
 }
 
@@ -310,7 +314,7 @@ section {
 .botanical-decoration {
     position: absolute;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.25;
 }
 
 .botanical-top-left {
