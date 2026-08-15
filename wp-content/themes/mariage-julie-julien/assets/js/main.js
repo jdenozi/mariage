@@ -169,6 +169,20 @@
         });
     });
 
+    // Show/hide animation detail
+    document.querySelectorAll('#rsvp-form input[name="animation"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            var detail = document.getElementById('rsvp-animation-detail');
+            if (this.value === 'oui') {
+                detail.style.display = 'block';
+                detail.classList.add('slide-down');
+            } else {
+                detail.style.display = 'none';
+                detail.classList.remove('slide-down');
+            }
+        });
+    });
+
     if (rsvpForm) {
         rsvpForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -211,6 +225,8 @@
                     if (rsvpMembres) rsvpMembres.innerHTML = '';
                     var enfantsDetail = document.getElementById('rsvp-enfants-detail');
                     if (enfantsDetail) enfantsDetail.style.display = 'none';
+                    var animationDetail = document.getElementById('rsvp-animation-detail');
+                    if (animationDetail) animationDetail.style.display = 'none';
                 } else {
                     msgEl.className = 'form-message error';
                     msgEl.textContent = data.data.message;

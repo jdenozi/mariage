@@ -1,0 +1,81 @@
+/**
+ * Styles pour l'éditeur Gutenberg
+ * Permet le rendu correct des polices dans la prévisualisation
+ */
+
+/* Variables de couleurs */
+:root {
+    --sage: #98A084;
+    --sage-dark: #667055;
+    --sage-light: #B6B49C;
+    --ivory: #FDFCF5;
+    --champagne: #E7D9C8;
+    --terracotta: #C28B6A;
+    --text-dark: #4A4A3F;
+    --text-light: #6B6B5E;
+}
+
+/* Appliquer les polices dans l'éditeur */
+.editor-styles-wrapper {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    color: var(--text-dark);
+    line-height: 1.8;
+}
+
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+/* Dancing Script pour les titres stylisés (Julie & Julien) */
+.editor-styles-wrapper .has-dancing-script-font-family,
+.editor-styles-wrapper [style*="Dancing Script"],
+.editor-styles-wrapper .wp-block-heading[style*="Dancing Script"] {
+    font-family: 'Dancing Script', cursive !important;
+}
+
+/* Support pour les classes personnalisées */
+.editor-styles-wrapper .hero-title,
+.editor-styles-wrapper .dancing-script {
+    font-family: 'Dancing Script', cursive !important;
+}
+
+/* Great Vibes pour variante calligraphique */
+.editor-styles-wrapper .has-great-vibes-font-family,
+.editor-styles-wrapper [style*="Great Vibes"] {
+    font-family: 'Great Vibes', cursive !important;
+}
+
+/* Cormorant Garamond */
+.editor-styles-wrapper .has-cormorant-garamond-font-family,
+.editor-styles-wrapper [style*="Cormorant Garamond"] {
+    font-family: 'Cormorant Garamond', serif !important;
+}
+
+/* Montserrat */
+.editor-styles-wrapper .has-montserrat-font-family,
+.editor-styles-wrapper [style*="Montserrat"] {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Couleurs du thème */
+.editor-styles-wrapper .has-sage-color {
+    color: var(--sage);
+}
+
+.editor-styles-wrapper .has-sage-dark-color {
+    color: var(--sage-dark);
+}
+
+.editor-styles-wrapper .has-text-dark-color {
+    color: var(--text-dark);
+}
+
+.editor-styles-wrapper .has-text-light-color {
+    color: var(--text-light);
+}

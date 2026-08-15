@@ -20,20 +20,34 @@ Text Domain: mariage-jj
 }
 
 :root {
-    --sage: #9CAF88;
-    --sage-dark: #7A9068;
-    --sage-light: #B8C5A8;
-    --ivory: #FFFFF0;
-    --champagne: #F5E6CC;
-    --text-dark: #2C3E2D;
-    --text-light: #6B6B5E;
+    --sage: #98A084;           /* Feuille de Sauge */
+    --sage-dark: #667055;      /* Olive Profond */
+    --sage-light: #B6B49C;     /* Brume d'Olive */
+    --ivory: #FDFCF5;          /* Ivoire - fond principal */
+    --champagne: #E7D9C8;      /* Champagne */
+    --terracotta: #C28B6A;     /* Terracotta - accent */
+    --sable: #DCC8B2;          /* Sable Chaud */
+    --text-dark: #4A4A3F;      /* Texte foncé */
+    --text-light: #6B6B5E;     /* Texte clair */
     --white: #FFFFFF;
-    --border: #D4C5A9;
+    --border: #DCC8B2;         /* Sable Chaud */
 }
 
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+}
+
+/* Container for decorations */
+.site-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
 }
 
 body {
@@ -43,6 +57,7 @@ body {
     background-color: var(--ivory);
     line-height: 1.8;
     overflow-x: hidden;
+    position: relative;
 }
 
 h1, h2, h3, h4 {
@@ -75,7 +90,7 @@ img {
     left: 0;
     right: 0;
     z-index: 9999;
-    background: rgba(255, 255, 240, 0.97);
+    background: rgba(253, 252, 245, 0.97);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     transition: all 0.3s ease;
@@ -312,7 +327,7 @@ img {
     border-radius: 1rem;
     overflow: hidden;
     border: 3px solid var(--sage-light);
-    box-shadow: 0 8px 40px rgba(156, 175, 136, 0.15);
+    box-shadow: 0 8px 40px rgba(152, 160, 132, 0.15);
 }
 
 .hero-frame img {
@@ -682,7 +697,7 @@ img {
 .form-group select:focus {
     outline: none;
     border-color: var(--sage);
-    box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.15);
+    box-shadow: 0 0 0 3px rgba(152, 160, 132, 0.15);
 }
 
 .form-group textarea {
@@ -722,6 +737,14 @@ img {
     line-height: 1.6;
 }
 
+.form-note--highlight {
+    background: rgba(152, 160, 132, 0.1);
+    border-left: 3px solid var(--sage);
+    padding: 1rem 1.2rem;
+    border-radius: 0 4px 4px 0;
+    margin: 0;
+}
+
 .form-divider {
     text-align: center;
     margin: 1.5rem 0 1rem;
@@ -740,7 +763,7 @@ img {
 }
 
 .form-divider span {
-    background: var(--cream);
+    background: var(--champagne);
     padding: 0 1rem;
     position: relative;
     font-family: 'Cormorant Garamond', serif;
@@ -772,7 +795,7 @@ img {
 .btn-primary:hover {
     background: var(--sage-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(122, 144, 104, 0.25);
+    box-shadow: 0 4px 20px rgba(102, 112, 85, 0.25);
 }
 
 .btn-outline {
@@ -806,7 +829,7 @@ img {
 }
 
 .form-message.success {
-    background: rgba(156, 175, 136, 0.12);
+    background: rgba(152, 160, 132, 0.12);
     color: var(--sage-dark);
     border: 1px solid var(--sage-light);
     display: block;
@@ -892,7 +915,7 @@ img {
 .cagnotte-progress-bar {
     width: 100%;
     height: 12px;
-    background: var(--cream);
+    background: var(--champagne);
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid var(--border);

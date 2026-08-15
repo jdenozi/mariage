@@ -53,6 +53,26 @@ function mariage_enqueue_assets() {
 }
 add_action('wp_enqueue_scripts', 'mariage_enqueue_assets');
 
+// Enqueue styles for Gutenberg editor (preview)
+function mariage_enqueue_editor_assets() {
+    // Google Fonts for editor
+    wp_enqueue_style(
+        'mariage-editor-fonts',
+        'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap',
+        [],
+        null
+    );
+
+    // Editor-specific styles
+    wp_enqueue_style(
+        'mariage-editor-style',
+        get_template_directory_uri() . '/assets/css/editor-style.css',
+        ['mariage-editor-fonts'],
+        '1.0'
+    );
+}
+add_action('enqueue_block_editor_assets', 'mariage_enqueue_editor_assets');
+
 // Theme setup
 function mariage_theme_setup() {
     add_theme_support('title-tag');
@@ -60,6 +80,10 @@ function mariage_theme_setup() {
     add_theme_support('html5', ['search-form', 'comment-form', 'gallery', 'caption']);
 }
 add_action('after_setup_theme', 'mariage_theme_setup');
+
+// Desactiver Gutenberg sur les pages pour utiliser l'editeur classique
+add_filter('use_block_editor_for_post_type', '__return_false', 10);
+add_filter('use_block_editor_for_post', '__return_false', 10);
 
 // Set static front page programmatically
 function mariage_set_front_page() {

@@ -2,7 +2,7 @@
 $title        = get_theme_mod('rsvp_title', 'Confirmez votre presence');
 $subtitle     = get_theme_mod('rsvp_subtitle', 'Merci de nous confirmer votre venue avant le 1er avril 2027');
 $btn_text     = get_theme_mod('rsvp_btn_text', 'Envoyer ma reponse');
-$note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous preferons que cette journee soit une occasion pour les adultes de profiter pleinement de la fete. Si vous le pouvez, nous vous encourageons a faire garder vos enfants pour cette soiree. Merci de votre comprehension !");
+$note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous avons fait le choix d'un mariage sans enfant afin que chacun puisse profiter pleinement de la fete. Si vous n'avez vraiment pas d'autre solution, merci de nous en informer ci-dessous.");
 ?>
 <section class="section" id="rsvp">
     <canvas class="section-canvas" id="canvas-rsvp"></canvas>
@@ -59,9 +59,16 @@ $note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous preferons que 
                     <p class="form-note"><?php echo esc_html($note_enfants); ?></p>
                 </div>
 
-                <div class="form-group" id="rsvp-enfants-detail" style="display:none;">
-                    <label for="rsvp-nb-enfants">Nombre d'enfants</label>
-                    <input type="number" id="rsvp-nb-enfants" name="nb_enfants" min="1" max="10" value="1">
+                <div id="rsvp-enfants-detail" style="display:none;">
+                    <div class="form-group">
+                        <label for="rsvp-nb-enfants">Nombre d'enfants</label>
+                        <input type="number" id="rsvp-nb-enfants" name="nb_enfants" min="1" max="10" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="rsvp-enfants-raison">Merci de nous expliquer votre situation</label>
+                        <textarea id="rsvp-enfants-raison" name="enfants_raison" placeholder="Ex: bebe allaite, pas de mode de garde possible ce week-end..."></textarea>
+                        <p class="form-note">Nous comprenons que certaines situations sont compliquees. Nous reviendrons vers vous pour en discuter.</p>
+                    </div>
                 </div>
 
                 <!-- Transport -->
@@ -86,7 +93,7 @@ $note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous preferons que 
 
                 <!-- Discours -->
                 <div class="form-group">
-                    <label>Souhaitez-vous faire un discours ou une animation ?</label>
+                    <label>Souhaitez-vous faire un discours ?</label>
                     <div class="radio-group">
                         <label class="radio-option">
                             <input type="radio" name="discours" value="non" checked>
@@ -97,6 +104,27 @@ $note_enfants = get_theme_mod('questionnaire_note_enfants', "Nous preferons que 
                             <span>Oui !</span>
                         </label>
                     </div>
+                </div>
+
+                <!-- Animation -->
+                <div class="form-group">
+                    <label>Souhaitez-vous proposer une animation ?</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="animation" value="non" checked>
+                            <span>Non</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="animation" value="oui">
+                            <span>Oui !</span>
+                        </label>
+                    </div>
+                    <p class="form-note">Jeu, sketch, chanson, danse, quiz... Toute idee est la bienvenue !</p>
+                </div>
+
+                <div class="form-group" id="rsvp-animation-detail" style="display:none;">
+                    <label for="rsvp-animation-desc">Decrivez brievement votre idee</label>
+                    <textarea id="rsvp-animation-desc" name="animation_description" placeholder="Ex: un quiz sur les maries, une chanson revisitee..."></textarea>
                 </div>
             </div>
 

@@ -82,4 +82,44 @@
         });
     });
 
+    // ==========================================
+    // DECORATIONS
+    // ==========================================
+
+    // Add decoration
+    $('#add-decoration-btn').on('click', function () {
+        var template = $('#decoration-template').html();
+        var index = Date.now();
+        var html = template.replace(/__INDEX__/g, index);
+        $('#decorations-list').append(html);
+    });
+
+    // Remove decoration
+    $(document).on('click', '.deco-remove-btn', function () {
+        $(this).closest('.decoration-item').remove();
+    });
+
+    // Upload decoration image
+    $(document).on('click', '.deco-upload-btn', function (e) {
+        e.preventDefault();
+        var item = $(this).closest('.decoration-item');
+        var input = item.find('.deco-image-input');
+        var preview = item.find('.decoration-preview');
+
+        var frame = wp.media({
+            title: 'Choisir une image decorative',
+            button: { text: 'Utiliser cette image' },
+            multiple: false,
+            library: { type: 'image' }
+        });
+
+        frame.on('select', function () {
+            var attachment = frame.state().get('selection').first().toJSON();
+            input.val(attachment.url);
+            preview.html('<img src="' + attachment.url + '" alt="">');
+        });
+
+        frame.open();
+    });
+
 })(jQuery);

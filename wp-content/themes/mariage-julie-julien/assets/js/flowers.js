@@ -50,24 +50,23 @@
         };
     }
 
-    // Palette mariage
+    // Palette mariage - Terracotta & Olive
     var palette = {
-        sage:       { h: 105, s: 18, l: 61 },
-        sageDark:   { h: 105, s: 25, l: 48 },
-        champagne:  { h: 35,  s: 55, l: 88 },
-        ivory:      { h: 60,  s: 100, l: 97 },
-        rose:       { h: 5,   s: 30, l: 78 },
-        dustyPink:  { h: 350, s: 25, l: 72 },
-        cream:      { h: 40,  s: 40, l: 90 },
-        warmGreen:  { h: 95,  s: 20, l: 55 },
+        terracotta:  { h: 22,  s: 44, l: 59 },  // #C28B6A
+        champagne:   { h: 30,  s: 38, l: 85 },  // #E7D9C8
+        ivory:       { h: 48,  s: 53, l: 97 },  // #FDFCF5
+        brumeOlive:  { h: 55,  s: 17, l: 66 },  // #B6B49C
+        feuilleSauge:{ h: 82,  s: 14, l: 57 },  // #98A084
+        oliveProfond:{ h: 82,  s: 12, l: 39 },  // #667055
+        sableChaud:  { h: 30,  s: 35, l: 78 },  // #DCC8B2
     };
 
     var flowerPresets = [
-        { colors: [palette.sage, palette.warmGreen, palette.cream], type: 'default', num: 8, layers: 5 },
-        { colors: [palette.dustyPink, palette.rose, palette.cream], type: 'default', num: 7, layers: 5 },
-        { colors: [palette.champagne, palette.cream, palette.ivory], type: 'gold', num: 10, layers: 5 },
-        { colors: [palette.sage, palette.sageDark, palette.champagne], type: 'default', num: 9, layers: 6 },
-        { colors: [palette.rose, palette.champagne, palette.cream], type: 'default', num: 6, layers: 5 },
+        { colors: [palette.feuilleSauge, palette.brumeOlive, palette.ivory], type: 'default', num: 8, layers: 5 },
+        { colors: [palette.terracotta, palette.sableChaud, palette.champagne], type: 'default', num: 7, layers: 5 },
+        { colors: [palette.champagne, palette.sableChaud, palette.ivory], type: 'gold', num: 10, layers: 5 },
+        { colors: [palette.brumeOlive, palette.oliveProfond, palette.champagne], type: 'default', num: 9, layers: 6 },
+        { colors: [palette.terracotta, palette.champagne, palette.ivory], type: 'default', num: 6, layers: 5 },
     ];
 
     function Petal(x, y, ang, l, color, max, dur, del, type) {
@@ -97,8 +96,9 @@
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.bezierCurveTo(l * 0.3, -l * 0.35, l * 0.7, -l * 0.3, l * 0.85, 0);
-                ctx.bezierCurveTo(l * 0.7, l * 0.3, l * 0.3, l * 0.35, 0, 0);
+                // Pétales plus arrondis (moins pointus)
+                ctx.bezierCurveTo(l * 0.15, -l * 0.45, l * 0.55, -l * 0.45, l * 0.75, 0);
+                ctx.bezierCurveTo(l * 0.55, l * 0.45, l * 0.15, l * 0.45, 0, 0);
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
@@ -109,8 +109,9 @@
                 ctx.lineWidth = 0.8;
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.bezierCurveTo(l * 0.25, -l * 0.4, l * 0.75, -l * 0.4, l, 0);
-                ctx.bezierCurveTo(l * 0.75, l * 0.4, l * 0.25, l * 0.4, 0, 0);
+                // Pétales plus arrondis (moins pointus)
+                ctx.bezierCurveTo(l * 0.1, -l * 0.5, l * 0.5, -l * 0.5, l * 0.8, 0);
+                ctx.bezierCurveTo(l * 0.5, l * 0.5, l * 0.1, l * 0.5, 0, 0);
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
@@ -189,8 +190,8 @@
             ctx.translate(x, y);
             ctx.rotate(angle);
             ctx.scale(s, s);
-            ctx.fillStyle = 'hsla(105, 20%, 58%, 0.25)';
-            ctx.strokeStyle = 'hsla(105, 20%, 48%, 0.3)';
+            ctx.fillStyle = 'hsla(82, 14%, 57%, 0.25)';    /* Feuille de Sauge */
+            ctx.strokeStyle = 'hsla(82, 12%, 39%, 0.3)';   /* Olive Profond */
             ctx.lineWidth = 0.8;
             ctx.beginPath();
             ctx.moveTo(0, 0);
@@ -199,7 +200,7 @@
             ctx.fill();
             ctx.stroke();
             // Nervure
-            ctx.strokeStyle = 'hsla(105, 20%, 48%, 0.15)';
+            ctx.strokeStyle = 'hsla(82, 12%, 39%, 0.15)';   /* Olive Profond */
             ctx.beginPath();
             ctx.moveTo(2, 0);
             ctx.lineTo(length - 3, 0);
@@ -231,7 +232,7 @@
         this.draw = function (ctx) {
             var s = this.stemScale.giveValue();
             if (s <= 0.01) return;
-            ctx.strokeStyle = 'hsla(105, 18%, 55%, 0.3)';
+            ctx.strokeStyle = 'hsla(82, 14%, 57%, 0.3)';   /* Feuille de Sauge */
             ctx.lineWidth = 1.2;
             ctx.beginPath();
             ctx.moveTo(startX, startY);
