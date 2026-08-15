@@ -83,7 +83,17 @@ add_action('after_setup_theme', 'mariage_theme_setup');
 
 // Register decoration block
 function mariage_register_blocks() {
-    register_block_type(get_template_directory() . '/blocks/decoration-image');
+    wp_register_script(
+        'mariage-decoration-block',
+        get_template_directory_uri() . '/blocks/decoration-image/index.js',
+        ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+        '1.0.1',
+        true
+    );
+
+    register_block_type('mariage/decoration-image', [
+        'editor_script' => 'mariage-decoration-block',
+    ]);
 }
 add_action('init', 'mariage_register_blocks');
 

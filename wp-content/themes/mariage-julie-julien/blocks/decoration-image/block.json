@@ -13,7 +13,6 @@
         "align": false
     },
     "textdomain": "mariage",
-    "editorScript": "file:./index.js",
     "attributes": {
         "imageUrl": {
             "type": "string",
