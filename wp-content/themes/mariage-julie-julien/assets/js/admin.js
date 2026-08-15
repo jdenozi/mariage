@@ -86,8 +86,8 @@
     // DECORATIONS
     // ==========================================
 
-    // Add decoration
-    $('#add-decoration-btn').on('click', function () {
+    // Add decoration (use delegation for Gutenberg compatibility)
+    $(document).on('click', '#add-decoration-btn', function () {
         var template = $('#decoration-template').html();
         var index = Date.now();
         var html = template.replace(/__INDEX__/g, index);
