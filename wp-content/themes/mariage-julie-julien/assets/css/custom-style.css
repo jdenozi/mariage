@@ -783,3 +783,50 @@ body {
 .arch-frame:hover img {
     transform: scale(1.03);
 }
+
+/* ==========================================
+   IMAGES DECORATIVES (bloc Gutenberg)
+   ========================================== */
+.decoration-image {
+    transition: opacity 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .decoration-image.hide-on-mobile {
+        display: none !important;
+    }
+
+    .decoration-image {
+        max-width: 25vw !important;
+    }
+}
+
+/* ==========================================
+   OVERRIDES - Force new bohemian style
+   ========================================== */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--cream) !important;
+    color: var(--text-dark) !important;
+}
+
+/* Reset any old styles */
+.hero, .section, main {
+    background-color: var(--cream);
+}
+
+/* Ensure proper font loading */
+.hero-names,
+.footer-names,
+h1, h2, h3 {
+    font-family: var(--font-serif) !important;
+}
+
+.script-text,
+.hero-and,
+.hero-message {
+    font-family: var(--font-script) !important;
+}

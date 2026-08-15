@@ -24,12 +24,20 @@ function mariage_enqueue_assets() {
         null
     );
 
-    // Custom styles
+    // Main theme style
+    wp_enqueue_style(
+        'mariage-style',
+        get_stylesheet_uri(),
+        ['mariage-fonts'],
+        '1.1'
+    );
+
+    // Custom styles (new bohemian style)
     wp_enqueue_style(
         'mariage-custom-style',
         get_template_directory_uri() . '/assets/css/custom-style.css',
-        [],
-        '1.0'
+        ['mariage-style'],
+        '1.1'
     );
 
     // Main JS
