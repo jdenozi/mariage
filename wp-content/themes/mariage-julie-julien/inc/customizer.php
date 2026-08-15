@@ -338,74 +338,214 @@ function mariage_decorations_metabox_html($post) {
     wp_nonce_field('mariage_decorations_save', 'mariage_decorations_nonce');
     $decorations = get_post_meta($post->ID, '_mariage_decorations', true);
     if (!is_array($decorations)) $decorations = [];
+    $page_url = get_permalink($post->ID);
     ?>
-    <p>Placez des images librement sur cette page. Les positions sont en % de la page.</p>
+    <p><strong>Glissez-deposez</strong> les images sur la zone de previsualisation. Cliquez sur une image pour modifier sa taille ou la supprimer.</p>
 
-    <div id="decorations-list">
-        <?php foreach ($decorations as $i => $deco): ?>
-            <div class="decoration-item" data-index="<?php echo $i; ?>">
-                <div class="decoration-preview">
-                    <?php if (!empty($deco['image'])): ?>
-                        <img src="<?php echo esc_url($deco['image']); ?>" alt="">
-                    <?php endif; ?>
-                </div>
-                <div class="decoration-fields">
-                    <input type="hidden" name="decorations[<?php echo $i; ?>][image]" value="<?php echo esc_attr($deco['image'] ?? ''); ?>" class="deco-image-input">
-                    <button type="button" class="button deco-upload-btn">Choisir image</button>
+    <div class="deco-editor">
+        <div class="deco-toolbar">
+            <button type="button" class="button button-primary" id="add-decoration-btn">+ Ajouter une image</button>
+            <span class="deco-help">Astuce: Glissez les images pour les positionner</span>
+        </div>
 
-                    <div class="decoration-position">
-                        <label>
-                            <select name="decorations[<?php echo $i; ?>][pos_v]">
-                                <option value="top" <?php selected($deco['pos_v'] ?? 'top', 'top'); ?>>Haut</option>
-                                <option value="bottom" <?php selected($deco['pos_v'] ?? 'top', 'bottom'); ?>>Bas</option>
-                            </select>
-                            <input type="number" name="decorations[<?php echo $i; ?>][v_value]" value="<?php echo esc_attr($deco['v_value'] ?? 10); ?>" class="small-text"> %
-                        </label>
-                        <label>
-                            <select name="decorations[<?php echo $i; ?>][pos_h]">
-                                <option value="left" <?php selected($deco['pos_h'] ?? 'left', 'left'); ?>>Gauche</option>
-                                <option value="right" <?php selected($deco['pos_h'] ?? 'left', 'right'); ?>>Droite</option>
-                            </select>
-                            <input type="number" name="decorations[<?php echo $i; ?>][h_value]" value="<?php echo esc_attr($deco['h_value'] ?? 0); ?>" class="small-text"> %
-                        </label>
-                        <label>Taille: <input type="number" name="decorations[<?php echo $i; ?>][size]" value="<?php echo esc_attr($deco['size'] ?? 150); ?>" class="small-text"> px</label>
-                        <label>Opacite: <input type="number" name="decorations[<?php echo $i; ?>][opacity]" value="<?php echo esc_attr($deco['opacity'] ?? 100); ?>" class="small-text"> %</label>
-                        <label>Z: <input type="number" name="decorations[<?php echo $i; ?>][zindex]" value="<?php echo esc_attr($deco['zindex'] ?? 0); ?>" class="small-text"></label>
+        <div class="deco-canvas-container">
+            <div class="deco-canvas" id="deco-canvas">
+                <?php foreach ($decorations as $i => $deco):
+                    if (empty($deco['image'])) continue;
+                    $style = sprintf(
+                        'left:%s%%;top:%s%%;width:%dpx;opacity:%s;z-index:%d;',
+                        esc_attr($deco['left'] ?? 10),
+                        esc_attr($deco['top'] ?? 10),
+                        absint($deco['size'] ?? 150),
+                        (absint($deco['opacity'] ?? 100) / 100),
+                        intval($deco['zindex'] ?? 1)
+                    );
+                ?>
+                    <div class="deco-item" data-index="<?php echo $i; ?>" style="<?php echo $style; ?>">
+                        <img src="<?php echo esc_url($deco['image']); ?>" alt="" draggable="false">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][image]" value="<?php echo esc_attr($deco['image']); ?>">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][left]" value="<?php echo esc_attr($deco['left'] ?? 10); ?>" class="deco-left">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][top]" value="<?php echo esc_attr($deco['top'] ?? 10); ?>" class="deco-top">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][size]" value="<?php echo esc_attr($deco['size'] ?? 150); ?>" class="deco-size">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][opacity]" value="<?php echo esc_attr($deco['opacity'] ?? 100); ?>" class="deco-opacity">
+                        <input type="hidden" name="decorations[<?php echo $i; ?>][zindex]" value="<?php echo esc_attr($deco['zindex'] ?? 1); ?>" class="deco-zindex">
+                        <div class="deco-item-controls">
+                            <button type="button" class="deco-resize" data-action="smaller" title="Reduire">−</button>
+                            <button type="button" class="deco-resize" data-action="bigger" title="Agrandir">+</button>
+                            <button type="button" class="deco-delete" title="Supprimer">×</button>
+                        </div>
                     </div>
-                    <button type="button" class="button button-link-delete deco-remove-btn">Supprimer</button>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <p><button type="button" class="button" id="add-decoration-btn">+ Ajouter une decoration</button></p>
-
-    <template id="decoration-template">
-        <div class="decoration-item" data-index="__INDEX__">
-            <div class="decoration-preview"></div>
-            <div class="decoration-fields">
-                <input type="hidden" name="decorations[__INDEX__][image]" value="" class="deco-image-input">
-                <button type="button" class="button deco-upload-btn">Choisir image</button>
-                <div class="decoration-position">
-                    <label><select name="decorations[__INDEX__][pos_v]"><option value="top">Haut</option><option value="bottom">Bas</option></select><input type="number" name="decorations[__INDEX__][v_value]" value="10" class="small-text"> %</label>
-                    <label><select name="decorations[__INDEX__][pos_h]"><option value="left">Gauche</option><option value="right">Droite</option></select><input type="number" name="decorations[__INDEX__][h_value]" value="0" class="small-text"> %</label>
-                    <label>Taille: <input type="number" name="decorations[__INDEX__][size]" value="150" class="small-text"> px</label>
-                    <label>Opacite: <input type="number" name="decorations[__INDEX__][opacity]" value="100" class="small-text"> %</label>
-                    <label>Z: <input type="number" name="decorations[__INDEX__][zindex]" value="0" class="small-text"></label>
-                </div>
-                <button type="button" class="button button-link-delete deco-remove-btn">Supprimer</button>
+                <?php endforeach; ?>
             </div>
         </div>
-    </template>
+    </div>
 
     <style>
-        .decoration-item { display:flex; gap:15px; padding:12px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px; margin-bottom:10px; }
-        .decoration-preview { width:70px; height:70px; background:#eee; border-radius:4px; overflow:hidden; flex-shrink:0; }
-        .decoration-preview img { width:100%; height:100%; object-fit:contain; }
-        .decoration-fields { flex:1; display:flex; flex-direction:column; gap:8px; }
-        .decoration-position { display:flex; gap:10px; flex-wrap:wrap; }
-        .decoration-position label { display:flex; align-items:center; gap:4px; font-size:12px; }
+        .deco-editor { margin-top: 15px; }
+        .deco-toolbar { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .deco-help { color: #666; font-style: italic; font-size: 12px; }
+        .deco-canvas-container { border: 2px dashed #ccc; border-radius: 8px; background: #f0f0f0; overflow: hidden; }
+        .deco-canvas {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #fdfcf5 0%, #f5f4ed 100%);
+            overflow: hidden;
+        }
+        .deco-item {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.2s, transform 0.1s;
+        }
+        .deco-item:hover { z-index: 999 !important; }
+        .deco-item.dragging {
+            opacity: 0.8;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: scale(1.05);
+        }
+        .deco-item.selected {
+            outline: 3px solid #0073aa;
+            outline-offset: 3px;
+        }
+        .deco-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+        }
+        .deco-item-controls {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 5px;
+            background: #fff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .deco-item:hover .deco-item-controls,
+        .deco-item.selected .deco-item-controls { display: flex; }
+        .deco-item-controls button {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .deco-item-controls button:hover { background: #ddd; }
+        .deco-delete:hover { background: #e74c3c !important; color: #fff; }
     </style>
+
+    <script>
+    jQuery(function($) {
+        var canvas = $('#deco-canvas');
+        var decoIndex = <?php echo count($decorations); ?>;
+
+        // Add new decoration
+        $('#add-decoration-btn').on('click', function() {
+            var frame = wp.media({
+                title: 'Choisir une image decorative',
+                button: { text: 'Ajouter' },
+                multiple: false,
+                library: { type: 'image' }
+            });
+
+            frame.on('select', function() {
+                var attachment = frame.state().get('selection').first().toJSON();
+                var idx = decoIndex++;
+                var item = $('<div class="deco-item" data-index="' + idx + '" style="left:10%;top:10%;width:150px;opacity:1;z-index:1;">' +
+                    '<img src="' + attachment.url + '" draggable="false">' +
+                    '<input type="hidden" name="decorations[' + idx + '][image]" value="' + attachment.url + '">' +
+                    '<input type="hidden" name="decorations[' + idx + '][left]" value="10" class="deco-left">' +
+                    '<input type="hidden" name="decorations[' + idx + '][top]" value="10" class="deco-top">' +
+                    '<input type="hidden" name="decorations[' + idx + '][size]" value="150" class="deco-size">' +
+                    '<input type="hidden" name="decorations[' + idx + '][opacity]" value="100" class="deco-opacity">' +
+                    '<input type="hidden" name="decorations[' + idx + '][zindex]" value="1" class="deco-zindex">' +
+                    '<div class="deco-item-controls">' +
+                        '<button type="button" class="deco-resize" data-action="smaller" title="Reduire">−</button>' +
+                        '<button type="button" class="deco-resize" data-action="bigger" title="Agrandir">+</button>' +
+                        '<button type="button" class="deco-delete" title="Supprimer">×</button>' +
+                    '</div>' +
+                '</div>');
+                canvas.append(item);
+                initDraggable(item);
+            });
+
+            frame.open();
+        });
+
+        // Initialize drag for existing items
+        $('.deco-item').each(function() {
+            initDraggable($(this));
+        });
+
+        function initDraggable(item) {
+            var isDragging = false;
+            var startX, startY, startLeft, startTop;
+
+            item.on('mousedown', function(e) {
+                if ($(e.target).closest('.deco-item-controls').length) return;
+
+                isDragging = true;
+                item.addClass('dragging');
+
+                var rect = canvas[0].getBoundingClientRect();
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = parseFloat(item.css('left')) / canvas.width() * 100;
+                startTop = parseFloat(item.css('top')) / canvas.height() * 100;
+
+                e.preventDefault();
+            });
+
+            $(document).on('mousemove', function(e) {
+                if (!isDragging) return;
+
+                var dx = (e.clientX - startX) / canvas.width() * 100;
+                var dy = (e.clientY - startY) / canvas.height() * 100;
+
+                var newLeft = Math.max(-20, Math.min(100, startLeft + dx));
+                var newTop = Math.max(-20, Math.min(100, startTop + dy));
+
+                item.css({ left: newLeft + '%', top: newTop + '%' });
+                item.find('.deco-left').val(newLeft.toFixed(1));
+                item.find('.deco-top').val(newTop.toFixed(1));
+            });
+
+            $(document).on('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    item.removeClass('dragging');
+                }
+            });
+        }
+
+        // Resize buttons
+        canvas.on('click', '.deco-resize', function() {
+            var item = $(this).closest('.deco-item');
+            var sizeInput = item.find('.deco-size');
+            var currentSize = parseInt(sizeInput.val());
+            var action = $(this).data('action');
+
+            var newSize = action === 'bigger' ? currentSize + 30 : currentSize - 30;
+            newSize = Math.max(30, Math.min(600, newSize));
+
+            sizeInput.val(newSize);
+            item.css('width', newSize + 'px');
+        });
+
+        // Delete button
+        canvas.on('click', '.deco-delete', function() {
+            $(this).closest('.deco-item').remove();
+        });
+    });
+    </script>
     <?php
 }
 
@@ -421,13 +561,11 @@ function mariage_save_decorations_meta($post_id) {
             if (!empty($deco['image'])) {
                 $decorations[] = [
                     'image'   => esc_url_raw($deco['image']),
-                    'pos_v'   => in_array($deco['pos_v'], ['top', 'bottom']) ? $deco['pos_v'] : 'top',
-                    'v_value' => intval($deco['v_value']),
-                    'pos_h'   => in_array($deco['pos_h'], ['left', 'right']) ? $deco['pos_h'] : 'left',
-                    'h_value' => intval($deco['h_value']),
-                    'size'    => absint($deco['size']),
-                    'opacity' => absint($deco['opacity']),
-                    'zindex'  => intval($deco['zindex']),
+                    'left'    => floatval($deco['left'] ?? 10),
+                    'top'     => floatval($deco['top'] ?? 10),
+                    'size'    => absint($deco['size'] ?? 150),
+                    'opacity' => absint($deco['opacity'] ?? 100),
+                    'zindex'  => intval($deco['zindex'] ?? 1),
                 ];
             }
         }

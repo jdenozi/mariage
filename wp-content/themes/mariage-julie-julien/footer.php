@@ -20,14 +20,12 @@ if (!empty($decorations) && is_array($decorations)):
     <?php foreach ($decorations as $deco):
         if (empty($deco['image'])) continue;
         $style = sprintf(
-            'position:absolute;%s:%s%%;%s:%s%%;width:%dpx;height:auto;opacity:%s;z-index:%d;pointer-events:none;',
-            esc_attr($deco['pos_v']),
-            esc_attr($deco['v_value']),
-            esc_attr($deco['pos_h']),
-            esc_attr($deco['h_value']),
-            absint($deco['size']),
-            (absint($deco['opacity']) / 100),
-            intval($deco['zindex'])
+            'position:absolute;left:%s%%;top:%s%%;width:%dpx;height:auto;opacity:%s;z-index:%d;pointer-events:none;',
+            esc_attr($deco['left'] ?? 10),
+            esc_attr($deco['top'] ?? 10),
+            absint($deco['size'] ?? 150),
+            (absint($deco['opacity'] ?? 100) / 100),
+            intval($deco['zindex'] ?? 1)
         );
     ?>
         <img src="<?php echo esc_url($deco['image']); ?>" alt="" style="<?php echo $style; ?>">
