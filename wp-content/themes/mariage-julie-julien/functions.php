@@ -14,8 +14,25 @@ function mariage_theme_setup() {
 }
 add_action('after_setup_theme', 'mariage_theme_setup');
 
-// Enqueue scripts for RSVP form
+// Enqueue styles and scripts
 function mariage_enqueue_assets() {
+    // Google Fonts
+    wp_enqueue_style(
+        'mariage-fonts',
+        'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&display=swap',
+        [],
+        null
+    );
+
+    // Custom styles
+    wp_enqueue_style(
+        'mariage-custom-style',
+        get_template_directory_uri() . '/assets/css/custom-style.css',
+        [],
+        '1.0'
+    );
+
+    // Main JS
     wp_enqueue_script(
         'mariage-main',
         get_template_directory_uri() . '/assets/js/main.js',

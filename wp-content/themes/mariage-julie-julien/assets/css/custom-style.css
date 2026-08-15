@@ -1,0 +1,748 @@
+/**
+ * Style personnalise - Mariage Julie & Julien
+ * Inspiration: Boheme naturel avec illustrations botaniques line-art
+ */
+
+/* ==========================================
+   VARIABLES & PALETTE
+   ========================================== */
+:root {
+    /* Couleurs principales */
+    --cream: #FAF8F3;
+    --cream-dark: #F5F0E8;
+    --sage: #9BA88A;
+    --sage-dark: #7D8A6E;
+    --sage-light: #B8C4A8;
+    --terracotta: #C4856A;
+    --terracotta-light: #D4A088;
+    --gold: #C9A962;
+    --gold-light: #E0CFA0;
+
+    /* Texte */
+    --text-dark: #3D3D3D;
+    --text-medium: #5A5A5A;
+    --text-light: #8A8A8A;
+    --text-on-sage: #FFFFFF;
+    --text-on-terracotta: #FFFFFF;
+
+    /* Typographie */
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-script: 'Great Vibes', cursive;
+    --font-sans: 'Montserrat', sans-serif;
+
+    /* Espacements */
+    --section-padding: 80px 20px;
+    --arch-radius: 50% 50% 0 0 / 30% 30% 0 0;
+}
+
+/* ==========================================
+   TYPOGRAPHIE
+   ========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Montserrat:wght@300;400;500&display=swap');
+
+body {
+    font-family: var(--font-sans);
+    font-weight: 300;
+    color: var(--text-dark);
+    background-color: var(--cream);
+    line-height: 1.7;
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+}
+
+h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); }
+h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+h3 { font-size: clamp(1.4rem, 3vw, 2rem); }
+
+/* Style "and" en script */
+.script-text,
+.and-script {
+    font-family: var(--font-script);
+    font-size: 1.2em;
+    color: var(--terracotta);
+}
+
+/* Titres en majuscules espacees */
+.title-uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 300;
+}
+
+/* ==========================================
+   SECTIONS - ALTERNANCE DE COULEURS
+   ========================================== */
+
+/* Section fond creme (defaut) */
+.section-cream,
+section {
+    background-color: var(--cream);
+    padding: var(--section-padding);
+}
+
+/* Section fond sage (countdown, RSVP) */
+.section-sage {
+    background-color: var(--sage);
+    color: var(--text-on-sage);
+    padding: var(--section-padding);
+}
+
+.section-sage h2,
+.section-sage h3 {
+    color: var(--text-on-sage);
+}
+
+.section-sage .script-text {
+    color: var(--gold-light);
+}
+
+/* Section terracotta (dress code, citation) */
+.section-terracotta {
+    background-color: var(--terracotta);
+    color: var(--text-on-terracotta);
+    padding: var(--section-padding);
+}
+
+.section-terracotta h2,
+.section-terracotta h3 {
+    color: var(--text-on-terracotta);
+}
+
+/* ==========================================
+   CADRES EN ARCHE
+   ========================================== */
+
+/* Arche pour images */
+.arch-frame {
+    border-radius: 200px 200px 0 0;
+    overflow: hidden;
+}
+
+.arch-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Arche avec bordure fine */
+.arch-border {
+    border: 1px solid var(--sage);
+    border-radius: 200px 200px 0 0;
+    padding: 15px;
+}
+
+/* Grande arche hero */
+.hero-arch {
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 250px 250px 0 0;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Petite arche (countdown, icones) */
+.mini-arch {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 100px 100px 0 0;
+    padding: 20px 25px;
+    background: transparent;
+}
+
+/* ==========================================
+   COMPTE A REBOURS
+   ========================================== */
+.countdown-section {
+    background-color: var(--sage);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.countdown-title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-on-sage);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.countdown-title::before,
+.countdown-title::after {
+    content: '';
+    width: 60px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.countdown-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.countdown-item {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 80px 80px 0 0;
+    padding: 30px 35px 25px;
+    min-width: 100px;
+    background: transparent;
+    transition: transform 0.3s ease;
+}
+
+.countdown-item:hover {
+    transform: translateY(-5px);
+}
+
+.countdown-number {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--text-on-sage);
+    line-height: 1;
+    display: block;
+}
+
+.countdown-label {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 10px;
+    display: block;
+}
+
+/* ==========================================
+   PROGRAMME / TIMELINE
+   ========================================== */
+.timeline {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+    padding-left: 60px;
+}
+
+/* Ligne verticale */
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--sage-light);
+}
+
+.timeline-item {
+    position: relative;
+    padding: 25px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* Icone sur la ligne */
+.timeline-icon {
+    position: absolute;
+    left: -50px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+    border: 1px solid var(--sage);
+    border-radius: 50%;
+}
+
+.timeline-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--sage-dark);
+    fill: none;
+    stroke-width: 1.5;
+}
+
+.timeline-time {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--sage-dark);
+    min-width: 80px;
+}
+
+.timeline-content h4 {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    margin: 0 0 5px;
+    color: var(--text-dark);
+}
+
+.timeline-content p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   ICONES LINE-ART (SVG inline)
+   ========================================== */
+
+/* Utiliser ces classes avec des SVG inline ou en background */
+.icon-rings { /* Alliances - ceremonie */ }
+.icon-glasses { /* Verres - vin d'honneur */ }
+.icon-plate { /* Assiette - diner */ }
+.icon-music { /* Note - soiree */ }
+
+/* ==========================================
+   ILLUSTRATIONS BOTANIQUES
+   ========================================== */
+
+/* Container pour illustrations en header/footer */
+.botanical-decoration {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.botanical-top-left {
+    top: 0;
+    left: 0;
+    transform: rotate(-15deg);
+}
+
+.botanical-top-right {
+    top: 0;
+    right: 0;
+    transform: scaleX(-1) rotate(-15deg);
+}
+
+.botanical-bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: rotate(15deg);
+}
+
+.botanical-bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: scaleX(-1) rotate(15deg);
+}
+
+/* Style pour SVG line-art */
+.line-art {
+    stroke: var(--sage);
+    stroke-width: 1;
+    fill: none;
+}
+
+.line-art-light {
+    stroke: var(--sage-light);
+    stroke-width: 0.5;
+}
+
+/* ==========================================
+   HEADER / NAVIGATION
+   ========================================== */
+.site-header {
+    background: var(--cream);
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu a {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-medium);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: var(--sage-dark);
+}
+
+/* Logo central */
+.nav-logo {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    padding: 0 20px;
+}
+
+/* ==========================================
+   HERO SECTION
+   ========================================== */
+.hero-section {
+    background: var(--cream);
+    padding: 60px 20px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-names {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 30px 0 10px;
+    color: var(--text-dark);
+}
+
+.hero-and {
+    font-family: var(--font-script);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--terracotta);
+    display: block;
+    margin: -10px 0;
+}
+
+.hero-subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin: 20px 0;
+}
+
+.hero-date {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    color: var(--text-dark);
+    margin: 25px 0 10px;
+    letter-spacing: 0.1em;
+}
+
+.hero-location {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.hero-message {
+    font-family: var(--font-script);
+    font-size: 1.5rem;
+    color: var(--sage-dark);
+    margin-top: 30px;
+}
+
+/* ==========================================
+   SECTION LIEU
+   ========================================== */
+.lieu-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: var(--section-padding);
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .lieu-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.lieu-image {
+    border-radius: 200px 200px 0 0;
+    overflow: hidden;
+}
+
+.lieu-image img {
+    width: 100%;
+    height: auto;
+}
+
+.lieu-info {
+    text-align: center;
+}
+
+.lieu-info h3 {
+    font-family: var(--font-script);
+    font-size: 2rem;
+    color: var(--sage-dark);
+    margin-bottom: 10px;
+}
+
+.lieu-info h4 {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+}
+
+.lieu-address {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+.btn-map {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 30px;
+    border: 1px solid var(--sage);
+    color: var(--sage-dark);
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.btn-map:hover {
+    background: var(--sage);
+    color: white;
+}
+
+/* ==========================================
+   DRESS CODE
+   ========================================== */
+.dresscode-section {
+    background: var(--terracotta);
+    padding: 60px 20px;
+    text-align: center;
+    color: white;
+}
+
+.dresscode-title {
+    font-family: var(--font-script);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.dresscode-subtitle {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+.color-palette {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.color-swatch {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================
+   RSVP SECTION
+   ========================================== */
+.rsvp-section {
+    background: var(--sage);
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.rsvp-section h2 {
+    color: white;
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.rsvp-section .script-text {
+    color: var(--gold-light);
+    font-size: 1.8rem;
+}
+
+/* ==========================================
+   FORMULAIRE
+   ========================================== */
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-medium);
+    margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 15px 20px;
+    border: 1px solid var(--sage-light);
+    border-radius: 0;
+    background: white;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--sage-dark);
+}
+
+.btn-submit {
+    background: var(--sage);
+    color: white;
+    border: none;
+    padding: 18px 50px;
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-submit:hover {
+    background: var(--sage-dark);
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+.site-footer {
+    background: var(--cream-dark);
+    padding: 60px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.footer-names {
+    font-family: var(--font-script);
+    font-size: 2.5rem;
+    color: var(--sage-dark);
+    margin-bottom: 10px;
+}
+
+.footer-date {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    color: var(--text-light);
+    letter-spacing: 0.1em;
+}
+
+/* ==========================================
+   DECORATIONS SUBTILES
+   ========================================== */
+
+/* Petites etoiles decoratives */
+.star-decoration::before {
+    content: '✦';
+    color: var(--gold);
+    font-size: 0.6rem;
+    margin: 0 10px;
+}
+
+/* Separateur elegant */
+.elegant-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.elegant-divider::before,
+.elegant-divider::after {
+    content: '';
+    width: 80px;
+    height: 1px;
+    background: var(--sage-light);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+    :root {
+        --section-padding: 50px 15px;
+    }
+
+    .countdown-wrapper {
+        gap: 15px;
+    }
+
+    .countdown-item {
+        padding: 20px 25px 18px;
+        min-width: 70px;
+    }
+
+    .countdown-number {
+        font-size: 2rem;
+    }
+
+    .timeline {
+        padding-left: 50px;
+    }
+
+    .nav-menu {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+}
+
+/* ==========================================
+   ANIMATIONS SUBTILES
+   ========================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Hover subtil sur les images */
+.arch-frame img {
+    transition: transform 0.5s ease;
+}
+
+.arch-frame:hover img {
+    transform: scale(1.03);
+}
