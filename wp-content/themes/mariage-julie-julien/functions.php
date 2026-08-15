@@ -55,3 +55,19 @@ function mariage_rsvp_shortcode() {
     return ob_get_clean();
 }
 add_shortcode('mariage_rsvp', 'mariage_rsvp_shortcode');
+
+// Register decoration block
+function mariage_register_blocks() {
+    wp_register_script(
+        'mariage-decoration-block',
+        get_template_directory_uri() . '/blocks/decoration-image/index.js',
+        ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components'],
+        '1.1',
+        true
+    );
+
+    register_block_type('mariage/decoration-image', [
+        'editor_script' => 'mariage-decoration-block',
+    ]);
+}
+add_action('init', 'mariage_register_blocks');
