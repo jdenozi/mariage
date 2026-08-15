@@ -70,15 +70,6 @@ function mariage_enqueue_editor_assets() {
         ['mariage-editor-fonts'],
         '1.0'
     );
-
-    // Decoration image block
-    wp_enqueue_script(
-        'mariage-decoration-block',
-        get_template_directory_uri() . '/blocks/decoration-image.js',
-        ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components'],
-        '1.0',
-        true
-    );
 }
 add_action('enqueue_block_editor_assets', 'mariage_enqueue_editor_assets');
 
@@ -89,6 +80,12 @@ function mariage_theme_setup() {
     add_theme_support('html5', ['search-form', 'comment-form', 'gallery', 'caption']);
 }
 add_action('after_setup_theme', 'mariage_theme_setup');
+
+// Register decoration block
+function mariage_register_blocks() {
+    register_block_type(get_template_directory() . '/blocks/decoration-image');
+}
+add_action('init', 'mariage_register_blocks');
 
 // Shortcodes pour les elements dynamiques
 // [mariage_rsvp] - Formulaire RSVP

@@ -1,13 +1,21 @@
 (function (wp) {
+    if (!wp || !wp.blocks) {
+        console.error('wp.blocks not available');
+        return;
+    }
+
     const { registerBlockType } = wp.blocks;
     const { useBlockProps, MediaUpload, MediaUploadCheck, InspectorControls } = wp.blockEditor;
     const { PanelBody, RangeControl, Button, ToggleControl } = wp.components;
-    const { useState, useEffect, useRef } = wp.element;
+    const { useState, useRef } = wp.element;
 
     registerBlockType('mariage/decoration-image', {
+        apiVersion: 2,
         title: 'Image decorative',
+        description: 'Ajouter une image decorative positionnee librement sur la page',
         icon: 'format-image',
-        category: 'media',
+        category: 'design',
+        keywords: ['decoration', 'image', 'fleur', 'background', 'fond'],
         attributes: {
             imageUrl: { type: 'string', default: '' },
             imageId: { type: 'number', default: 0 },
