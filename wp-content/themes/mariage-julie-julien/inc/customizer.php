@@ -22,22 +22,29 @@ add_action('admin_menu', 'mariage_admin_menu');
 
 // Enqueue admin assets
 function mariage_admin_assets($hook) {
-    $allowed = [
+    global $post;
+
+    // Pour les pages RSVP et Photos
+    $admin_pages = [
         'toplevel_page_mariage-rsvp',
         'mariage_page_mariage-photos-admin',
-        'post.php',
-        'post-new.php',
     ];
-    if (!in_array($hook, $allowed)) return;
+
+    // Pour l'edition de pages (classique et Gutenberg)
+    $is_page_edit = in_array($hook, ['post.php', 'post-new.php']) &&
+                    isset($post) && $post->post_type === 'page';
+
+    if (!in_array($hook, $admin_pages) && !$is_page_edit) return;
+
     wp_enqueue_media();
-    wp_enqueue_style('mariage-admin', get_template_directory_uri() . '/assets/css/admin.css', [], '1.4');
-    wp_enqueue_script('mariage-admin', get_template_directory_uri() . '/assets/js/admin.js', ['jquery'], '1.4', true);
+    wp_enqueue_style('mariage-admin', get_template_directory_uri() . '/assets/css/admin.css', [], '1.5');
+    wp_enqueue_script('mariage-admin', get_template_directory_uri() . '/assets/js/admin.js', ['jquery', 'wp-data'], '1.5', true);
     wp_localize_script('mariage-admin', 'mariageAdmin', [
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('mariage_admin_nonce'),
     ]);
 }
-add_action('admin_enqueue_scripts', 'mariage_admin_assets');
+add_action('admin_enqueue_scripts', 'mariage_admin_assets', 20);
 
 // Delete photo AJAX
 function mariage_delete_photo() {
@@ -325,11 +332,12 @@ function mariage_photos_page() {
 function mariage_register_decorations_metabox() {
     add_meta_box(
         'mariage_decorations',
-        'Images decoratives',
+        'Images decoratives (glisser-deposer)',
         'mariage_decorations_metabox_html',
         'page',
         'normal',
-        'high'
+        'high',
+        ['__back_compat_meta_box' => false] // Compatible Gutenberg
     );
 }
 add_action('add_meta_boxes', 'mariage_register_decorations_metabox');
