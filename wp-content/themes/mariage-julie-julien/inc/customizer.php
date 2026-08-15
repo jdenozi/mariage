@@ -1,73 +1,34 @@
 <?php
 /**
- * Mariage Theme - Admin
+ * Mariage Theme - Admin RSVP
  */
 
-// Register admin menu (simplifie)
+// Register admin menu
 function mariage_admin_menu() {
     add_menu_page(
-        'Mariage',
-        'Mariage',
+        'RSVP',
+        'RSVP',
         'manage_options',
         'mariage-rsvp',
         'mariage_rsvp_page',
-        'dashicons-heart',
-        2
+        'dashicons-groups',
+        25
     );
-
-    add_submenu_page('mariage-rsvp', 'Reponses RSVP', 'Reponses RSVP', 'manage_options', 'mariage-rsvp', 'mariage_rsvp_page');
-    add_submenu_page('mariage-rsvp', 'Gestion Photos', 'Photos', 'manage_options', 'mariage-photos-admin', 'mariage_photos_page');
 }
 add_action('admin_menu', 'mariage_admin_menu');
 
 // Enqueue admin assets
 function mariage_admin_assets($hook) {
-    global $post;
+    if ($hook !== 'toplevel_page_mariage-rsvp') return;
 
-    // Pour les pages RSVP et Photos
-    $admin_pages = [
-        'toplevel_page_mariage-rsvp',
-        'mariage_page_mariage-photos-admin',
-    ];
-
-    // Pour l'edition de pages (classique et Gutenberg)
-    $is_page_edit = in_array($hook, ['post.php', 'post-new.php']) &&
-                    isset($post) && $post->post_type === 'page';
-
-    if (!in_array($hook, $admin_pages) && !$is_page_edit) return;
-
-    wp_enqueue_media();
-    wp_enqueue_style('mariage-admin', get_template_directory_uri() . '/assets/css/admin.css', [], '1.5');
-    wp_enqueue_script('mariage-admin', get_template_directory_uri() . '/assets/js/admin.js', ['jquery', 'wp-data'], '1.5', true);
+    wp_enqueue_style('mariage-admin', get_template_directory_uri() . '/assets/css/admin.css', [], '1.0');
+    wp_enqueue_script('mariage-admin', get_template_directory_uri() . '/assets/js/admin.js', ['jquery'], '1.0', true);
     wp_localize_script('mariage-admin', 'mariageAdmin', [
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('mariage_admin_nonce'),
     ]);
 }
-add_action('admin_enqueue_scripts', 'mariage_admin_assets', 20);
-
-// Delete photo AJAX
-function mariage_delete_photo() {
-    check_ajax_referer('mariage_admin_nonce', 'nonce');
-    if (!current_user_can('manage_options')) wp_send_json_error();
-
-    global $wpdb;
-    $id = absint($_POST['photo_id']);
-    $table = $wpdb->prefix . 'mariage_photos';
-    $photo = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
-
-    if ($photo) {
-        $upload_dir = wp_upload_dir();
-        $file_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $photo->file_url);
-        if (file_exists($file_path)) {
-            wp_delete_file($file_path);
-        }
-        $wpdb->delete($table, ['id' => $id], ['%d']);
-    }
-
-    wp_send_json_success();
-}
-add_action('wp_ajax_mariage_delete_photo', 'mariage_delete_photo');
+add_action('admin_enqueue_scripts', 'mariage_admin_assets');
 
 // Delete RSVP AJAX
 function mariage_delete_rsvp() {
@@ -86,10 +47,6 @@ function mariage_export_csv() {
     if (!wp_verify_nonce($_GET['_wpnonce'], 'mariage_export')) return;
 
     global $wpdb;
-    $type = sanitize_text_field($_GET['mariage_export']);
-
-    if ($type !== 'rsvp') return;
-
     $table = $wpdb->prefix . 'mariage_rsvp';
     $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
     $filename = 'reponses-' . date('Y-m-d') . '.csv';
@@ -136,18 +93,17 @@ function mariage_export_csv() {
 }
 add_action('admin_init', 'mariage_export_csv');
 
-// ==========================================
-// PAGE: RSVP Responses
-// ==========================================
+// RSVP Admin Page
 function mariage_rsvp_page() {
     global $wpdb;
     $table = $wpdb->prefix . 'mariage_rsvp';
 
     if ($wpdb->get_var("SHOW TABLES LIKE '$table'") !== $table) {
-        echo '<div class="wrap"><h1>Reponses</h1><p>La table n\'existe pas encore.</p></div>';
+        echo '<div class="wrap"><h1>Reponses RSVP</h1><p>La table n\'existe pas encore. Attendez qu\'une premiere reponse soit soumise.</p></div>';
         return;
     }
 
+    // Ensure columns exist
     $cols = $wpdb->get_col("DESCRIBE $table", 0);
     if (!in_array('membres_groupe', $cols)) {
         $wpdb->query("ALTER TABLE $table ADD COLUMN membres_groupe TEXT AFTER nb_personnes");
@@ -161,6 +117,7 @@ function mariage_rsvp_page() {
 
     $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
 
+    // Statistics
     $total_oui = $total_non = $total_personnes = $total_enfants = $total_allergies = $total_discours = $total_voiture = 0;
     foreach ($results as $r) {
         if ($r->presence === 'oui') {
@@ -218,7 +175,7 @@ function mariage_rsvp_page() {
             </div>
         </div>
 
-        <p><a href="<?php echo esc_url($export_url); ?>" class="button">Exporter en CSV</a></p>
+        <p><a href="<?php echo esc_url($export_url); ?>" class="button button-primary">Exporter en CSV</a></p>
 
         <table class="wp-list-table widefat fixed striped">
             <thead>
@@ -280,305 +237,3 @@ function mariage_rsvp_page() {
     </div>
     <?php
 }
-
-// ==========================================
-// PAGE: Photos Management
-// ==========================================
-function mariage_photos_page() {
-    global $wpdb;
-    $table = $wpdb->prefix . 'mariage_photos';
-
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table'") !== $table) {
-        echo '<div class="wrap"><h1>Photos</h1><p>La table n\'existe pas encore.</p></div>';
-        return;
-    }
-
-    $results = $wpdb->get_results("SELECT * FROM $table ORDER BY created_at DESC");
-    ?>
-    <div class="wrap mariage-admin">
-        <h1>Photos & Videos (<?php echo count($results); ?>)</h1>
-
-        <?php if (empty($results)): ?>
-            <p>Aucune photo pour le moment.</p>
-        <?php else: ?>
-            <div class="mariage-photos-grid">
-                <?php foreach ($results as $photo): ?>
-                    <div class="mariage-photo-card" id="photo-card-<?php echo $photo->id; ?>">
-                        <div class="mariage-photo-media">
-                            <?php if (strpos($photo->file_type, 'video') !== false): ?>
-                                <video src="<?php echo esc_url($photo->file_url); ?>" controls></video>
-                            <?php else: ?>
-                                <img src="<?php echo esc_url($photo->file_url); ?>" alt="">
-                            <?php endif; ?>
-                        </div>
-                        <div class="mariage-photo-info">
-                            <strong><?php echo esc_html($photo->nom_invite ?: 'Anonyme'); ?></strong>
-                            <small><?php echo date('d/m/Y', strtotime($photo->created_at)); ?></small>
-                        </div>
-                        <button type="button" class="button mariage-delete-photo-btn" data-id="<?php echo $photo->id; ?>">
-                            Supprimer
-                        </button>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-    <?php
-}
-
-// ==========================================
-// META BOX: Decorations par page
-// ==========================================
-function mariage_register_decorations_metabox() {
-    add_meta_box(
-        'mariage_decorations',
-        'Images decoratives (glisser-deposer)',
-        'mariage_decorations_metabox_html',
-        'page',
-        'normal',
-        'high',
-        ['__back_compat_meta_box' => false] // Compatible Gutenberg
-    );
-}
-add_action('add_meta_boxes', 'mariage_register_decorations_metabox');
-
-function mariage_decorations_metabox_html($post) {
-    wp_nonce_field('mariage_decorations_save', 'mariage_decorations_nonce');
-    $decorations = get_post_meta($post->ID, '_mariage_decorations', true);
-    if (!is_array($decorations)) $decorations = [];
-    $page_url = get_permalink($post->ID);
-    ?>
-    <p><strong>Glissez-deposez</strong> les images sur la zone de previsualisation. Cliquez sur une image pour modifier sa taille ou la supprimer.</p>
-
-    <div class="deco-editor">
-        <div class="deco-toolbar">
-            <button type="button" class="button button-primary" id="add-decoration-btn">+ Ajouter une image</button>
-            <span class="deco-help">Astuce: Glissez les images pour les positionner</span>
-        </div>
-
-        <div class="deco-canvas-container">
-            <div class="deco-canvas" id="deco-canvas">
-                <?php foreach ($decorations as $i => $deco):
-                    if (empty($deco['image'])) continue;
-                    $style = sprintf(
-                        'left:%s%%;top:%s%%;width:%dpx;opacity:%s;z-index:%d;',
-                        esc_attr($deco['left'] ?? 10),
-                        esc_attr($deco['top'] ?? 10),
-                        absint($deco['size'] ?? 150),
-                        (absint($deco['opacity'] ?? 100) / 100),
-                        intval($deco['zindex'] ?? 1)
-                    );
-                ?>
-                    <div class="deco-item" data-index="<?php echo $i; ?>" style="<?php echo $style; ?>">
-                        <img src="<?php echo esc_url($deco['image']); ?>" alt="" draggable="false">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][image]" value="<?php echo esc_attr($deco['image']); ?>">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][left]" value="<?php echo esc_attr($deco['left'] ?? 10); ?>" class="deco-left">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][top]" value="<?php echo esc_attr($deco['top'] ?? 10); ?>" class="deco-top">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][size]" value="<?php echo esc_attr($deco['size'] ?? 150); ?>" class="deco-size">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][opacity]" value="<?php echo esc_attr($deco['opacity'] ?? 100); ?>" class="deco-opacity">
-                        <input type="hidden" name="decorations[<?php echo $i; ?>][zindex]" value="<?php echo esc_attr($deco['zindex'] ?? 1); ?>" class="deco-zindex">
-                        <div class="deco-item-controls">
-                            <button type="button" class="deco-resize" data-action="smaller" title="Reduire">−</button>
-                            <button type="button" class="deco-resize" data-action="bigger" title="Agrandir">+</button>
-                            <button type="button" class="deco-delete" title="Supprimer">×</button>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        .deco-editor { margin-top: 15px; }
-        .deco-toolbar { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .deco-help { color: #666; font-style: italic; font-size: 12px; }
-        .deco-canvas-container { border: 2px dashed #ccc; border-radius: 8px; background: #f0f0f0; overflow: hidden; }
-        .deco-canvas {
-            position: relative;
-            width: 100%;
-            height: 500px;
-            background: linear-gradient(135deg, #fdfcf5 0%, #f5f4ed 100%);
-            overflow: hidden;
-        }
-        .deco-item {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-            transition: box-shadow 0.2s, transform 0.1s;
-        }
-        .deco-item:hover { z-index: 999 !important; }
-        .deco-item.dragging {
-            opacity: 0.8;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transform: scale(1.05);
-        }
-        .deco-item.selected {
-            outline: 3px solid #0073aa;
-            outline-offset: 3px;
-        }
-        .deco-item img {
-            width: 100%;
-            height: auto;
-            display: block;
-            pointer-events: none;
-        }
-        .deco-item-controls {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            gap: 5px;
-            background: #fff;
-            padding: 3px 8px;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .deco-item:hover .deco-item-controls,
-        .deco-item.selected .deco-item-controls { display: flex; }
-        .deco-item-controls button {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: #f0f0f0;
-            cursor: pointer;
-            border-radius: 3px;
-            font-size: 16px;
-            line-height: 1;
-        }
-        .deco-item-controls button:hover { background: #ddd; }
-        .deco-delete:hover { background: #e74c3c !important; color: #fff; }
-    </style>
-
-    <script>
-    jQuery(function($) {
-        var canvas = $('#deco-canvas');
-        var decoIndex = <?php echo count($decorations); ?>;
-
-        // Add new decoration
-        $('#add-decoration-btn').on('click', function() {
-            var frame = wp.media({
-                title: 'Choisir une image decorative',
-                button: { text: 'Ajouter' },
-                multiple: false,
-                library: { type: 'image' }
-            });
-
-            frame.on('select', function() {
-                var attachment = frame.state().get('selection').first().toJSON();
-                var idx = decoIndex++;
-                var item = $('<div class="deco-item" data-index="' + idx + '" style="left:10%;top:10%;width:150px;opacity:1;z-index:1;">' +
-                    '<img src="' + attachment.url + '" draggable="false">' +
-                    '<input type="hidden" name="decorations[' + idx + '][image]" value="' + attachment.url + '">' +
-                    '<input type="hidden" name="decorations[' + idx + '][left]" value="10" class="deco-left">' +
-                    '<input type="hidden" name="decorations[' + idx + '][top]" value="10" class="deco-top">' +
-                    '<input type="hidden" name="decorations[' + idx + '][size]" value="150" class="deco-size">' +
-                    '<input type="hidden" name="decorations[' + idx + '][opacity]" value="100" class="deco-opacity">' +
-                    '<input type="hidden" name="decorations[' + idx + '][zindex]" value="1" class="deco-zindex">' +
-                    '<div class="deco-item-controls">' +
-                        '<button type="button" class="deco-resize" data-action="smaller" title="Reduire">−</button>' +
-                        '<button type="button" class="deco-resize" data-action="bigger" title="Agrandir">+</button>' +
-                        '<button type="button" class="deco-delete" title="Supprimer">×</button>' +
-                    '</div>' +
-                '</div>');
-                canvas.append(item);
-                initDraggable(item);
-            });
-
-            frame.open();
-        });
-
-        // Initialize drag for existing items
-        $('.deco-item').each(function() {
-            initDraggable($(this));
-        });
-
-        function initDraggable(item) {
-            var isDragging = false;
-            var startX, startY, startLeft, startTop;
-
-            item.on('mousedown', function(e) {
-                if ($(e.target).closest('.deco-item-controls').length) return;
-
-                isDragging = true;
-                item.addClass('dragging');
-
-                var rect = canvas[0].getBoundingClientRect();
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = parseFloat(item.css('left')) / canvas.width() * 100;
-                startTop = parseFloat(item.css('top')) / canvas.height() * 100;
-
-                e.preventDefault();
-            });
-
-            $(document).on('mousemove', function(e) {
-                if (!isDragging) return;
-
-                var dx = (e.clientX - startX) / canvas.width() * 100;
-                var dy = (e.clientY - startY) / canvas.height() * 100;
-
-                var newLeft = Math.max(-20, Math.min(100, startLeft + dx));
-                var newTop = Math.max(-20, Math.min(100, startTop + dy));
-
-                item.css({ left: newLeft + '%', top: newTop + '%' });
-                item.find('.deco-left').val(newLeft.toFixed(1));
-                item.find('.deco-top').val(newTop.toFixed(1));
-            });
-
-            $(document).on('mouseup', function() {
-                if (isDragging) {
-                    isDragging = false;
-                    item.removeClass('dragging');
-                }
-            });
-        }
-
-        // Resize buttons
-        canvas.on('click', '.deco-resize', function() {
-            var item = $(this).closest('.deco-item');
-            var sizeInput = item.find('.deco-size');
-            var currentSize = parseInt(sizeInput.val());
-            var action = $(this).data('action');
-
-            var newSize = action === 'bigger' ? currentSize + 30 : currentSize - 30;
-            newSize = Math.max(30, Math.min(600, newSize));
-
-            sizeInput.val(newSize);
-            item.css('width', newSize + 'px');
-        });
-
-        // Delete button
-        canvas.on('click', '.deco-delete', function() {
-            $(this).closest('.deco-item').remove();
-        });
-    });
-    </script>
-    <?php
-}
-
-function mariage_save_decorations_meta($post_id) {
-    if (!isset($_POST['mariage_decorations_nonce'])) return;
-    if (!wp_verify_nonce($_POST['mariage_decorations_nonce'], 'mariage_decorations_save')) return;
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_post', $post_id)) return;
-
-    $decorations = [];
-    if (isset($_POST['decorations']) && is_array($_POST['decorations'])) {
-        foreach ($_POST['decorations'] as $deco) {
-            if (!empty($deco['image'])) {
-                $decorations[] = [
-                    'image'   => esc_url_raw($deco['image']),
-                    'left'    => floatval($deco['left'] ?? 10),
-                    'top'     => floatval($deco['top'] ?? 10),
-                    'size'    => absint($deco['size'] ?? 150),
-                    'opacity' => absint($deco['opacity'] ?? 100),
-                    'zindex'  => intval($deco['zindex'] ?? 1),
-                ];
-            }
-        }
-    }
-
-    update_post_meta($post_id, '_mariage_decorations', $decorations);
-}
-add_action('save_post', 'mariage_save_decorations_meta');
