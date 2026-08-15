@@ -98,3 +98,19 @@
     padding: 2px;
     text-transform: uppercase;
 }
+
+/* Images decoratives responsive */
+.decoration-image {
+    transition: opacity 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .decoration-image.hide-on-mobile {
+        display: none !important;
+    }
+
+    /* Reduire la taille sur mobile */
+    .decoration-image {
+        max-width: 30vw !important;
+    }
+}

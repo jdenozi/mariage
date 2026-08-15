@@ -70,6 +70,15 @@ function mariage_enqueue_editor_assets() {
         ['mariage-editor-fonts'],
         '1.0'
     );
+
+    // Decoration image block
+    wp_enqueue_script(
+        'mariage-decoration-block',
+        get_template_directory_uri() . '/blocks/decoration-image.js',
+        ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components'],
+        '1.0',
+        true
+    );
 }
 add_action('enqueue_block_editor_assets', 'mariage_enqueue_editor_assets');
 
