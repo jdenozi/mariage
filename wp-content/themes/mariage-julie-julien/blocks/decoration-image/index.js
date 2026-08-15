@@ -7,7 +7,7 @@
     const { registerBlockType } = wp.blocks;
     const { useBlockProps, MediaUpload, MediaUploadCheck, InspectorControls } = wp.blockEditor;
     const { PanelBody, RangeControl, Button, ToggleControl } = wp.components;
-    const { useState, useRef } = wp.element;
+    const { useState, useRef, useEffect } = wp.element;
 
     registerBlockType('mariage/decoration-image', {
         apiVersion: 2,
@@ -33,6 +33,7 @@
             const { imageUrl, positionX, positionY, size, opacity, zIndex, hideOnMobile, flipHorizontal } = attributes;
             const [isDragging, setIsDragging] = useState(false);
             const containerRef = useRef(null);
+            const imageRef = useRef(null);
 
             const blockProps = useBlockProps({
                 className: 'decoration-image-editor',
@@ -46,39 +47,55 @@
                 }
             });
 
-            const handleDragStart = (e) => {
+            useEffect(function() {
+                if (!isDragging) return;
+
+                var handleMouseMove = function(e) {
+                    if (!containerRef.current) return;
+
+                    var rect = containerRef.current.getBoundingClientRect();
+                    var x = ((e.clientX - rect.left) / rect.width) * 100;
+                    var y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                    setAttributes({
+                        positionX: Math.max(0, Math.min(100, Math.round(x))),
+                        positionY: Math.max(0, Math.min(100, Math.round(y)))
+                    });
+                };
+
+                var handleMouseUp = function() {
+                    setIsDragging(false);
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+
+                return function() {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                };
+            }, [isDragging]);
+
+            var handleMouseDown = function(e) {
+                e.preventDefault();
                 setIsDragging(true);
-                e.dataTransfer.setDragImage(new Image(), 0, 0);
             };
 
-            const handleDrag = (e) => {
-                if (!isDragging || !containerRef.current || e.clientX === 0) return;
-
-                const rect = containerRef.current.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-                setAttributes({
-                    positionX: Math.max(0, Math.min(100, Math.round(x))),
-                    positionY: Math.max(0, Math.min(100, Math.round(y)))
-                });
-            };
-
-            const handleDragEnd = () => {
-                setIsDragging(false);
-            };
-
-            const imageStyle = {
+            var imageStyle = {
                 position: 'absolute',
                 left: positionX + '%',
                 top: positionY + '%',
                 width: size + 'vw',
+                maxWidth: '80%',
                 height: 'auto',
                 opacity: opacity / 100,
-                cursor: 'move',
+                cursor: isDragging ? 'grabbing' : 'grab',
                 transform: flipHorizontal ? 'scaleX(-1)' : 'none',
                 pointerEvents: 'all',
                 zIndex: 10,
+                userSelect: 'none',
+                border: isDragging ? '2px solid #007cba' : '2px solid transparent',
+                borderRadius: '4px',
             };
 
             return wp.element.createElement(
@@ -93,14 +110,14 @@
                         wp.element.createElement(RangeControl, {
                             label: 'Position horizontale (%)',
                             value: positionX,
-                            onChange: (val) => setAttributes({ positionX: val }),
+                            onChange: function(val) { setAttributes({ positionX: val }); },
                             min: 0,
                             max: 100
                         }),
                         wp.element.createElement(RangeControl, {
                             label: 'Position verticale (%)',
                             value: positionY,
-                            onChange: (val) => setAttributes({ positionY: val }),
+                            onChange: function(val) { setAttributes({ positionY: val }); },
                             min: 0,
                             max: 100
                         })
@@ -111,33 +128,33 @@
                         wp.element.createElement(RangeControl, {
                             label: 'Taille (% largeur ecran)',
                             value: size,
-                            onChange: (val) => setAttributes({ size: val }),
+                            onChange: function(val) { setAttributes({ size: val }); },
                             min: 5,
                             max: 50
                         }),
                         wp.element.createElement(RangeControl, {
                             label: 'Opacite (%)',
                             value: opacity,
-                            onChange: (val) => setAttributes({ opacity: val }),
+                            onChange: function(val) { setAttributes({ opacity: val }); },
                             min: 10,
                             max: 100
                         }),
                         wp.element.createElement(RangeControl, {
                             label: 'Z-index (superposition)',
                             value: zIndex,
-                            onChange: (val) => setAttributes({ zIndex: val }),
+                            onChange: function(val) { setAttributes({ zIndex: val }); },
                             min: -10,
                             max: 100
                         }),
                         wp.element.createElement(ToggleControl, {
                             label: 'Retourner horizontalement',
                             checked: flipHorizontal,
-                            onChange: (val) => setAttributes({ flipHorizontal: val })
+                            onChange: function(val) { setAttributes({ flipHorizontal: val }); }
                         }),
                         wp.element.createElement(ToggleControl, {
                             label: 'Masquer sur mobile',
                             checked: hideOnMobile,
-                            onChange: (val) => setAttributes({ hideOnMobile: val })
+                            onChange: function(val) { setAttributes({ hideOnMobile: val }); }
                         })
                     )
                 ),
@@ -148,14 +165,14 @@
                         style: {
                             position: 'relative',
                             width: '100%',
-                            height: '200px',
-                            overflow: 'visible',
-                            background: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                            height: '250px',
+                            overflow: 'hidden',
+                            background: '#e8e8e8',
+                            backgroundImage: 'linear-gradient(45deg, #d0d0d0 25%, transparent 25%), linear-gradient(-45deg, #d0d0d0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d0d0d0 75%), linear-gradient(-45deg, transparent 75%, #d0d0d0 75%)',
                             backgroundSize: '20px 20px',
                             backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
                             borderRadius: '4px',
-                        },
-                        onDragOver: (e) => e.preventDefault(),
+                        }
                     },
                     !imageUrl && wp.element.createElement(
                         MediaUploadCheck,
@@ -163,35 +180,36 @@
                         wp.element.createElement(
                             MediaUpload,
                             {
-                                onSelect: (media) => setAttributes({ imageUrl: media.url, imageId: media.id }),
+                                onSelect: function(media) { setAttributes({ imageUrl: media.url, imageId: media.id }); },
                                 allowedTypes: ['image'],
-                                render: ({ open }) => wp.element.createElement(
-                                    Button,
-                                    {
-                                        onClick: open,
-                                        variant: 'primary',
-                                        style: {
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)'
-                                        }
-                                    },
-                                    'Choisir une image decorative'
-                                )
+                                render: function(renderProps) {
+                                    return wp.element.createElement(
+                                        Button,
+                                        {
+                                            onClick: renderProps.open,
+                                            variant: 'primary',
+                                            style: {
+                                                position: 'absolute',
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)'
+                                            }
+                                        },
+                                        'Choisir une image decorative'
+                                    );
+                                }
                             }
                         )
                     ),
                     imageUrl && wp.element.createElement(
                         'img',
                         {
+                            ref: imageRef,
                             src: imageUrl,
                             alt: '',
                             style: imageStyle,
-                            draggable: true,
-                            onDragStart: handleDragStart,
-                            onDrag: handleDrag,
-                            onDragEnd: handleDragEnd,
+                            onMouseDown: handleMouseDown,
+                            draggable: false
                         }
                     ),
                     imageUrl && wp.element.createElement(
@@ -199,8 +217,8 @@
                         {
                             style: {
                                 position: 'absolute',
-                                bottom: '5px',
-                                right: '5px',
+                                bottom: '8px',
+                                right: '8px',
                                 display: 'flex',
                                 gap: '5px'
                             }
@@ -211,20 +229,22 @@
                             wp.element.createElement(
                                 MediaUpload,
                                 {
-                                    onSelect: (media) => setAttributes({ imageUrl: media.url, imageId: media.id }),
+                                    onSelect: function(media) { setAttributes({ imageUrl: media.url, imageId: media.id }); },
                                     allowedTypes: ['image'],
-                                    render: ({ open }) => wp.element.createElement(
-                                        Button,
-                                        { onClick: open, variant: 'secondary', isSmall: true },
-                                        'Changer'
-                                    )
+                                    render: function(renderProps) {
+                                        return wp.element.createElement(
+                                            Button,
+                                            { onClick: renderProps.open, variant: 'secondary', isSmall: true },
+                                            'Changer'
+                                        );
+                                    }
                                 }
                             )
                         ),
                         wp.element.createElement(
                             Button,
                             {
-                                onClick: () => setAttributes({ imageUrl: '', imageId: 0 }),
+                                onClick: function() { setAttributes({ imageUrl: '', imageId: 0 }); },
                                 variant: 'secondary',
                                 isSmall: true,
                                 isDestructive: true
@@ -233,49 +253,65 @@
                         )
                     ),
                     imageUrl && wp.element.createElement(
-                        'p',
+                        'div',
                         {
                             style: {
                                 position: 'absolute',
-                                top: '5px',
-                                left: '5px',
-                                margin: 0,
-                                padding: '2px 8px',
-                                background: 'rgba(0,0,0,0.6)',
+                                top: '8px',
+                                left: '8px',
+                                padding: '4px 10px',
+                                background: 'rgba(0,0,0,0.7)',
                                 color: 'white',
-                                borderRadius: '3px',
+                                borderRadius: '4px',
+                                fontSize: '12px',
+                                fontWeight: '500'
+                            }
+                        },
+                        isDragging ? 'Relacher pour placer' : 'Cliquer et glisser pour deplacer'
+                    ),
+                    imageUrl && wp.element.createElement(
+                        'div',
+                        {
+                            style: {
+                                position: 'absolute',
+                                top: '8px',
+                                right: '8px',
+                                padding: '4px 10px',
+                                background: 'rgba(0,120,180,0.9)',
+                                color: 'white',
+                                borderRadius: '4px',
                                 fontSize: '11px'
                             }
                         },
-                        'Glissez l\'image pour la positionner'
+                        'X: ' + positionX + '% | Y: ' + positionY + '%'
                     )
                 )
             );
         },
 
         save: function (props) {
-            const { imageUrl, positionX, positionY, size, opacity, zIndex, hideOnMobile, flipHorizontal } = props.attributes;
+            var attr = props.attributes;
 
-            if (!imageUrl) return null;
+            if (!attr.imageUrl) return null;
 
-            const className = 'decoration-image' + (hideOnMobile ? ' hide-on-mobile' : '');
+            var className = 'decoration-image' + (attr.hideOnMobile ? ' hide-on-mobile' : '');
 
-            const style = {
+            var style = {
                 position: 'fixed',
-                left: positionX + '%',
-                top: positionY + '%',
-                width: size + 'vw',
+                left: attr.positionX + '%',
+                top: attr.positionY + '%',
+                width: attr.size + 'vw',
                 height: 'auto',
-                opacity: opacity / 100,
-                zIndex: zIndex,
+                opacity: attr.opacity / 100,
+                zIndex: attr.zIndex,
                 pointerEvents: 'none',
-                transform: flipHorizontal ? 'scaleX(-1)' : 'none',
+                transform: attr.flipHorizontal ? 'scaleX(-1)' : 'none',
             };
 
             return wp.element.createElement(
                 'img',
                 {
-                    src: imageUrl,
+                    src: attr.imageUrl,
                     alt: '',
                     className: className,
                     style: style,
